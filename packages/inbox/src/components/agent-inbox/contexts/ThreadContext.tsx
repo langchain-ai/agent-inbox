@@ -51,14 +51,41 @@ export function ThreadsProvider<
   const [threadData, setThreadData] = useState<ThreadData<ThreadValues>[]>([]);
   const [hasMoreThreads, setHasMoreThreads] = useState(true);
 
+  const prevInboxValue = React.useRef("");
+  const prevOffsetValue = React.useRef("");
+  const prevLimitValue = React.useRef("");
+
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || loading) {
       return;
     }
     const inboxSearchParam = getSearchParam(INBOX_PARAM) as ThreadStatusWithAll;
+    const offsetSearchParam = getSearchParam(OFFSET_PARAM);
+    const limitSearchParam = getSearchParam(LIMIT_PARAM);
+    if (!offsetSearchParam || !limitSearchParam) {
+      // No offset or limit found yet, just return
+      return;
+    }
+
+    if (!prevInboxValue.current && !prevOffsetValue.current && !prevLimitValue.current) {
+      // First render. Assign values
+      prevInboxValue.current = inboxSearchParam;
+      prevOffsetValue.current = offsetSearchParam;
+      prevLimitValue.current = limitSearchParam;
+    } else if (prevInboxValue.current === inboxSearchParam && prevOffsetValue.current === offsetSearchParam && prevLimitValue.current === limitSearchParam) {
+      // No change in query params, just return
+      return;
+    } else {
+      // Some change in query params. Update values
+      prevInboxValue.current = inboxSearchParam;
+      prevOffsetValue.current = offsetSearchParam;
+      prevLimitValue.current = limitSearchParam;
+    }
+
     if (!inboxSearchParam) {
       return;
     }
+
     fetchThreads(inboxSearchParam);
   }, [searchParams]);
 
@@ -87,61 +114,70 @@ export function ThreadsProvider<
         });
         return;
       }
-      const statusInput = inbox === "all" ? {} : { status: inbox };
-
-      const threadSearchArgs = {
-        offset,
-        limit,
-        ...statusInput,
-      };
-      const threads = await client.threads.search(threadSearchArgs);
 
       const data: ThreadData<ThreadValues>[] = [];
-      if (["interrupted", "all"].includes(inbox)) {
-        const interruptedThreads = threads.filter(
-          (t) => t.status === "interrupted"
-        );
-        if (interruptedThreads.length > 0) {
-          const interruptedStates = await bulkGetThreadStates(
-            interruptedThreads.map((t) => t.thread_id)
+      const statusInput = inbox === "all" ? {} : { status: inbox };
+      let currentOffset = offset;
+      let hasMore = true;
+
+      // Continue fetching threads until we have enough data or there are no more threads
+      while(data.length < limit && hasMore) {
+        const threadSearchArgs = {
+          offset: currentOffset,
+          limit,
+          ...statusInput,
+        };
+        const threads = await client.threads.search(threadSearchArgs);
+
+        hasMore = threads.length === threadSearchArgs.limit;
+        currentOffset += threads.length;
+  
+        if (["interrupted", "all"].includes(inbox)) {
+          const interruptedThreads = threads.filter(
+            (t) => t.status === "interrupted"
           );
+          if (interruptedThreads.length > 0) {
+            const interruptedStates = await bulkGetThreadStates(
+              interruptedThreads.map((t) => t.thread_id)
+            );
+  
+            const interruptedData: ThreadData<ThreadValues>[] =
+              interruptedStates.flatMap((state, idx) => {
+                const lastTask =
+                  state.thread_state.tasks[state.thread_state.tasks.length - 1];
+                const lastInterrupt =
+                  lastTask.interrupts[lastTask.interrupts.length - 1];
+                const thread = interruptedThreads.find(
+                  (t) => t.thread_id === state.thread_id
+                );
+                if (!thread) {
+                  throw new Error(`Thread not found: ${state.thread_id}`);
+                }
+  
+                if (!lastInterrupt || !("value" in lastInterrupt)) {
+                  return [];
+                }
 
-          const interruptedData: ThreadData<ThreadValues>[] =
-            interruptedStates.flatMap((state) => {
-              const lastTask =
-                state.thread_state.tasks[state.thread_state.tasks.length - 1];
-              const lastInterrupt =
-                lastTask.interrupts[lastTask.interrupts.length - 1];
-              const thread = interruptedThreads.find(
-                (t) => t.thread_id === state.thread_id
-              );
-              if (!thread) {
-                throw new Error(`Thread not found: ${state.thread_id}`);
-              }
-
-              if (!lastInterrupt || !("value" in lastInterrupt)) {
-                return [];
-              }
-
-              return {
-                status: "interrupted",
-                thread: thread as Thread<ThreadValues>,
-                interrupts: lastInterrupt.value as HumanInterrupt[],
-              };
-            });
-          data.push(...interruptedData);
+                return {
+                  status: "interrupted",
+                  thread: thread as Thread<ThreadValues>,
+                  interrupts: lastInterrupt.value as HumanInterrupt[],
+                };
+              });
+            data.push(...interruptedData);
+          }
         }
-      }
-
-      threads.forEach((t) => {
-        if (t.status === "interrupted") {
-          return;
-        }
-        data.push({
-          status: t.status,
-          thread: t as Thread<ThreadValues>,
+  
+        threads.forEach((t) => {
+          if (t.status === "interrupted") {
+            return;
+          }
+          data.push({
+            status: t.status,
+            thread: t as Thread<ThreadValues>,
+          });
         });
-      });
+      }
 
       // Sort data by created_at in descending order (most recent first)
       const sortedData = data.sort((a, b) => {
@@ -151,8 +187,8 @@ export function ThreadsProvider<
         );
       });
 
-      setThreadData(sortedData);
-      setHasMoreThreads(threads.length === limit);
+      setThreadData(sortedData.slice(0, limit));
+      setHasMoreThreads(hasMore);
     } catch (e) {
       console.error("Failed to fetch threads", e);
     }
