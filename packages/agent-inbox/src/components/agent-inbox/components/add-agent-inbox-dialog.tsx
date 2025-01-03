@@ -27,9 +27,9 @@ export function AddAgentInboxDialog({
   const [deploymentUrl, setDeploymentUrl] = React.useState("");
   const [name, setName] = React.useState("");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    addAgentInbox({
+    await addAgentInbox({
       id: uuidv4(),
       graphId,
       deploymentUrl,

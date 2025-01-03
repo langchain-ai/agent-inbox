@@ -42,7 +42,8 @@ type ThreadContentType<
   hasMoreThreads: boolean;
   agentInboxes: AgentInbox[];
   changeAgentInbox: (graphId: string, replaceAll?: boolean) => void;
-  addAgentInbox: (agentInbox: AgentInbox) => void;
+  addAgentInbox: (agentInbox: AgentInbox) => Promise<void>;
+  removeAgentInbox: (inboxId: string) => void;
   ignoreThread: (threadId: string) => Promise<void>;
   fetchThreads: (inbox: ThreadStatusWithAll) => Promise<void>;
   sendHumanResponse: <TStream extends boolean = false>(
@@ -248,7 +249,44 @@ export function ThreadsProvider<
     );
   }, []);
 
-  const addAgentInbox = React.useCallback((agentInbox: AgentInbox) => {
+  const getThreadHistory = React.useCallback(async (inboxes?: AgentInbox[]) => {
+    const client = getClient({
+      agentInboxes: inboxes || agentInboxes,
+      getItem,
+      toast,
+    });
+    if (!client) {
+      console.error("Failed to load client");
+      return undefined;
+    }
+
+    try {
+      const thread = (await client.threads.search({ limit: 1 }))?.[0];
+      if (!thread) {
+        return undefined;
+      }
+      const history = await client.threads.getHistory(thread.thread_id, { limit: 1 });
+
+      return history[0];
+    } catch (e) {
+      console.error("Error occurred while fetching threads", e);
+    }
+  }, []);
+
+  const getTraceMetadata = React.useCallback(async (runId: string) => {
+    const apiUrl = `https://api.smith.langchain.com/runs/${runId}?exclude_s3_stored_attributes=true&exclude_serialized=true`;
+    const res = await fetch(apiUrl);
+    const data = await res.json();
+    return data;
+  }, []);
+
+  const addAgentInbox = React.useCallback(async (agentInbox: AgentInbox) => {
+    const threadHistory = await getThreadHistory([agentInbox]);
+    console.log("Got threadHistory", threadHistory);
+    const runId = threadHistory?.metadata?.run_id;
+    const traceMetadata = runId ? await getTraceMetadata(runId as string) : undefined;
+    console.log("traceMetadata", traceMetadata);
+
     const agentInboxes = getItem(AGENT_INBOXES_LOCAL_STORAGE_KEY);
     if (!agentInboxes || !agentInboxes.length) {
       setAgentInboxes([agentInbox]);
@@ -265,6 +303,28 @@ export function ThreadsProvider<
     );
     updateQueryParams(AGENT_INBOX_PARAM, agentInbox.id);
   }, []);
+
+  const removeAgentInbox = React.useCallback(
+    async (id: string) => {
+      const agentInboxes = getItem(AGENT_INBOXES_LOCAL_STORAGE_KEY);
+      if (!agentInboxes || !agentInboxes.length) {
+        return;
+      }
+      const parsedAgentInboxes: AgentInbox[] = JSON.parse(agentInboxes);
+      const inboxToRemove = parsedAgentInboxes.find((i) => i.id === id);
+      const newAgentInboxes = parsedAgentInboxes.filter((i) => i.id !== id);
+
+      if (inboxToRemove?.selected) {
+        newAgentInboxes[0].selected = true;
+        updateQueryParams(AGENT_INBOX_PARAM, newAgentInboxes[0].id);
+      }
+
+      setAgentInboxes(newAgentInboxes);
+      setItem(
+        AGENT_INBOXES_LOCAL_STORAGE_KEY,
+        JSON.stringify(newAgentInboxes)
+      );
+    }, []);
 
   const changeAgentInbox = (id: string, replaceAll?: boolean) => {
     setAgentInboxes((prev) =>
@@ -571,6 +631,7 @@ export function ThreadsProvider<
     agentInboxes,
     changeAgentInbox,
     addAgentInbox,
+    removeAgentInbox,
     ignoreThread,
     sendHumanResponse,
     fetchThreads,
