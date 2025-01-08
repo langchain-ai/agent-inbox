@@ -1,9 +1,7 @@
-import { cn } from "@/lib/utils";
+"use client";
+
 import NextImage from "next/image";
-import Link from "next/link";
-import { buttonVariants } from "../../ui/button";
 import { UserAuthForm } from "./user-auth-form-login";
-import { login } from "./actions";
 import { createSupabaseClient } from "@/lib/supabase/client";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -32,16 +30,7 @@ export function Login() {
     }
   }, [searchParams, router]);
 
-  const onLoginWithEmail = async (
-    input: LoginWithEmailInput
-  ): Promise<void> => {
-    setIsError(false);
-    await login(input);
-  };
-
-  const onLoginWithOauth = async (
-    provider: "google" | "github"
-  ): Promise<void> => {
+  const onLoginWithOauth = async (provider: "google"): Promise<void> => {
     setIsError(false);
     const client = createSupabaseClient();
     const currentOrigin =
@@ -56,15 +45,6 @@ export function Login() {
 
   return (
     <div className="container relative h-full flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <Link
-        href="/auth/signup"
-        className={cn(
-          buttonVariants({ variant: "ghost" }),
-          "absolute md:flex hidden right-4 top-4 md:right-8 md:top-8"
-        )}
-      >
-        Signup
-      </Link>
       <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
         <div className="absolute inset-0 bg-zinc-900" />
         <div className="relative z-20 flex gap-1 items-center text-lg font-medium">
@@ -81,21 +61,11 @@ export function Login() {
       <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">Login</h1>
-            <Link
-              href="/auth/signup"
-              className={cn(
-                buttonVariants({ variant: "ghost" }),
-                "md:hidden flex"
-              )}
-            >
-              Signup
-            </Link>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Login with
+            </h1>
           </div>
-          <UserAuthForm
-            onLoginWithEmail={onLoginWithEmail}
-            onLoginWithOauth={onLoginWithOauth}
-          />
+          <UserAuthForm onLoginWithOauth={onLoginWithOauth} />
           {isError && (
             <p className="text-red-500 text-sm text-center">
               There was an error signing into your account. Please try again.
