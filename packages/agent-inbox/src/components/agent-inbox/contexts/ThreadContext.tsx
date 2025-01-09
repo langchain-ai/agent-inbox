@@ -282,11 +282,9 @@ export function ThreadsProvider<
 
   const addAgentInbox = React.useCallback(async (agentInbox: AgentInbox) => {
     const threadHistory = await getThreadHistory([agentInbox]);
-    console.log("Got threadHistory", threadHistory);
     const runId = threadHistory?.metadata?.run_id;
     const traceMetadata = runId ? await getTraceMetadata(runId as string) : undefined;
-    console.log("traceMetadata", traceMetadata);
-
+s
     const agentInboxes = getItem(AGENT_INBOXES_LOCAL_STORAGE_KEY);
     if (!agentInboxes || !agentInboxes.length) {
       setAgentInboxes([agentInbox]);
