@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FileText } from "lucide-react";
+import { FileText, Trash } from "lucide-react";
 import { agentInboxSvg } from "../agent-inbox/components/agent-inbox-logo";
 import { SettingsPopover } from "../agent-inbox/components/settings-popover";
 import { PillButton } from "../ui/pill-button";
@@ -57,7 +57,7 @@ function hashString(str: string): number {
 }
 
 export function AppSidebar() {
-  const { agentInboxes, changeAgentInbox } = useThreadsContext();
+  const { agentInboxes, changeAgentInbox, removeAgentInbox } = useThreadsContext();
 
   return (
     <Sidebar className="border-r-[0px] bg-[#F9FAFB]">
@@ -80,7 +80,10 @@ export function AppSidebar() {
                       className={item.selected ? "bg-gray-100 rounded-md" : ""}
                     >
                       <SidebarMenuButton
-                        onClick={() => changeAgentInbox(item.id, true)}
+                        onClick={() => {
+                          console.log("changing inbox!");
+                          changeAgentInbox(item.id, true);
+                        }}
                       >
                         <div
                           className="w-6 h-6 rounded-md flex items-center justify-center text-white"
@@ -95,11 +98,20 @@ export function AppSidebar() {
                         </div>
                         <span
                           className={cn(
-                            "font-medium",
+                            "font-medium line-clamp-1 truncate",
                             item.selected ? "text-black" : "text-gray-600"
                           )}
                         >
                           {label}
+                        </span>
+                        <span>
+                          <Trash
+                            className="w-4 h-4 hover:text-red-500 transition-colors ease-in-out cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeAgentInbox(item.id);
+                            }}
+                          />
                         </span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
