@@ -12,9 +12,9 @@ export function useQueryParams() {
       if (typeof window === "undefined") return;
 
       // Determine if we're navigating back from thread view
-      const isNavigatingBackFromThread = 
-        key === VIEW_STATE_THREAD_QUERY_PARAM && 
-        !value && 
+      const isNavigatingBackFromThread =
+        key === VIEW_STATE_THREAD_QUERY_PARAM &&
+        !value &&
         searchParams.has(VIEW_STATE_THREAD_QUERY_PARAM);
 
       if (Array.isArray(key)) {
@@ -36,10 +36,9 @@ export function useQueryParams() {
           }
         });
 
-        router.replace(
-          `${pathname}?${params.toString()}`, 
-          { scroll: !isNavigatingBackFromThread }
-        );
+        router.replace(`${pathname}?${params.toString()}`, {
+          scroll: !isNavigatingBackFromThread,
+        });
         return;
       }
 
@@ -59,10 +58,9 @@ export function useQueryParams() {
 
       // Use replace instead of push to avoid breaking the browser's history
       // Allow scroll restoration when navigating back from thread view
-      router.replace(
-        `${pathname}?${params.toString()}`, 
-        { scroll: !isNavigatingBackFromThread }
-      );
+      router.replace(`${pathname}?${params.toString()}`, {
+        scroll: !isNavigatingBackFromThread,
+      });
     },
     [router, pathname, searchParams]
   );
