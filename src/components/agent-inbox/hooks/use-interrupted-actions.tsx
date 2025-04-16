@@ -401,10 +401,10 @@ export default function useInterruptedActions<
     loading,
     threadId: threadData?.thread.thread_id || "",
     isIgnoreAllowed: threadData?.interrupts?.[0]?.config.allow_ignore || false,
-    supportsMultipleMethods: !!(
-      threadData?.interrupts?.[0]?.config.allow_respond &&
-      threadData?.interrupts?.[0]?.config.allow_edit
-    ),
+    supportsMultipleMethods:
+      humanResponse.filter(
+        (r) => r.type === "edit" || r.type === "accept" || r.type === "response"
+      ).length > 1,
     selectedSubmitType,
     hasEdited,
     hasAddedResponse,

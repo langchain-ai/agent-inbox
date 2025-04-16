@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Thread } from "@langchain/langgraph-sdk";
 import { ArrowLeft, RefreshCw, AlertTriangle, ClockIcon } from "lucide-react";
-import { HumanInterrupt, ThreadData } from "../types";
+import { ThreadData } from "../types";
 import { constructOpenInStudioURL } from "../utils";
 import { ThreadIdCopyable } from "./thread-id";
 import { InboxItemInput } from "./inbox-item-input";
@@ -31,18 +30,22 @@ function ButtonGroup({
   handleShowDescription,
   showingState,
   showingDescription,
+  isInterrupted,
 }: {
   handleShowState: () => void;
   handleShowDescription: () => void;
   showingState: boolean;
   showingDescription: boolean;
+  isInterrupted: boolean;
 }) {
   return (
     <div className="flex flex-row gap-0 items-center justify-center">
       <Button
         variant="outline"
         className={cn(
-          "rounded-l-md rounded-r-none border-r-[0px]",
+          isInterrupted
+            ? "rounded-l-md rounded-r-none border-r-[0px]"
+            : "rounded-md",
           showingState ? "text-black" : "bg-white"
         )}
         size="sm"
@@ -50,17 +53,19 @@ function ButtonGroup({
       >
         State
       </Button>
-      <Button
-        variant="outline"
-        className={cn(
-          "rounded-l-none rounded-r-md border-l-[0px]",
-          showingDescription ? "text-black" : "bg-white"
-        )}
-        size="sm"
-        onClick={handleShowDescription}
-      >
-        Description
-      </Button>
+      {isInterrupted && (
+        <Button
+          variant="outline"
+          className={cn(
+            "rounded-l-none rounded-r-md border-l-[0px]",
+            showingDescription ? "text-black" : "bg-white"
+          )}
+          size="sm"
+          onClick={handleShowDescription}
+        >
+          Description
+        </Button>
+      )}
     </div>
   );
 }
@@ -77,7 +82,7 @@ export function ThreadActionsView<
   showDescription,
   showState,
 }: ThreadActionsViewProps<ThreadValues>) {
-  const { agentInboxes } = useThreadsContext<ThreadValues>();
+  const { agentInboxes, fetchSingleThread } = useThreadsContext<ThreadValues>();
   const { toast } = useToast();
   const { updateQueryParams } = useQueryParams();
   const [refreshing, setRefreshing] = useState(false);
@@ -92,13 +97,13 @@ export function ThreadActionsView<
   // Pass null values when not needed
   const interruptedActions = useInterruptedActions<ThreadValues>({
     threadData: isInterrupted
-      ? (threadData as {
-          thread: Thread<ThreadValues>;
-          status: "interrupted";
-          interrupts: HumanInterrupt[];
-        })
-      : (null as any),
-    setThreadData: isInterrupted ? setThreadData : (null as any),
+      ? {
+          thread: threadData.thread,
+          status: "interrupted",
+          interrupts: threadData.interrupts || [],
+        }
+      : null,
+    setThreadData: isInterrupted ? setThreadData : null,
   });
 
   const deploymentUrl = agentInboxes.find((i) => i.selected)?.deploymentUrl;
@@ -138,16 +143,41 @@ export function ThreadActionsView<
         duration: 3000,
       });
 
-      // In a real implementation, you would fetch the latest thread status here
-      // For now, we'll just simulate a refresh with a timeout
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Fetch the latest thread data using the ThreadsContext
+      const updatedThreadData = await fetchSingleThread(
+        threadData.thread.thread_id
+      );
+
+      if (!updatedThreadData) {
+        throw new Error("Failed to fetch updated thread data");
+      }
+
+      // Update the local state with the fresh thread data
+      setThreadData((prevThreadData) => {
+        if (!prevThreadData || !updatedThreadData) return prevThreadData;
+
+        // Create the new thread data with the correct type
+        if (updatedThreadData.status === "interrupted") {
+          return {
+            thread: updatedThreadData.thread,
+            status: "interrupted" as const,
+            interrupts: updatedThreadData.interrupts,
+          };
+        } else {
+          return {
+            thread: updatedThreadData.thread,
+            status: updatedThreadData.status,
+          };
+        }
+      });
 
       toast({
         title: "Thread refreshed",
         description: "Thread information has been updated.",
         duration: 3000,
       });
-    } catch (_error) {
+    } catch (error) {
+      console.error("Error refreshing thread:", error);
       toast({
         title: "Error",
         description: "Failed to refresh thread information.",
@@ -224,6 +254,7 @@ export function ThreadActionsView<
             handleShowDescription={() => handleShowSidePanel(false, true)}
             showingState={showState}
             showingDescription={showDescription}
+            isInterrupted={isInterrupted}
           />
         </div>
       </div>

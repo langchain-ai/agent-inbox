@@ -14,7 +14,7 @@ export function ThreadView<
   const { threadData: threads, loading } = useThreadsContext<ThreadValues>();
   const [threadData, setThreadData] =
     React.useState<ThreadData<ThreadValues>>();
-  const [showDescription, setShowDescription] = React.useState(true);
+  const [showDescription, setShowDescription] = React.useState(false);
   const [showState, setShowState] = React.useState(false);
   const showSidePanel = showDescription || showState;
 
@@ -27,6 +27,12 @@ export function ThreadView<
       );
       if (selectedThread) {
         setThreadData(selectedThread);
+        // Only show description tab by default for interrupted threads
+        const isInterrupted =
+          selectedThread.status === "interrupted" &&
+          selectedThread.interrupts !== undefined &&
+          selectedThread.interrupts.length > 0;
+        setShowDescription(isInterrupted);
         return;
       } else {
         // Route the user back to the inbox view.
