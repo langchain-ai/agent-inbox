@@ -10,10 +10,17 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { BaseMessage } from "@langchain/core/messages";
 import { ToolCall } from "@langchain/core/messages/tool";
+import React from "react";
 import { Button } from "../../ui/button";
 import { ToolCallTable } from "./tool-call-table";
 import { MarkdownText } from "@/components/ui/markdown-text";
 import { ThreadData } from "../types";
+import {
+  EmptyStateView,
+  InterruptedDescriptionView,
+  NonInterruptedDescriptionView,
+  ThreadStateView,
+} from "./views";
 
 interface StateViewRecursiveProps {
   value: unknown;
@@ -249,7 +256,6 @@ export function StateView({
   isAgentInboxSchema,
 }: StateViewComponentProps) {
   const [expanded, setExpanded] = useState(false);
-
   const threadValues = threadData.thread.values;
   const description = threadData.interrupts?.[0]?.description;
   const isInterrupted =
@@ -258,7 +264,7 @@ export function StateView({
     threadData.interrupts.length > 0;
 
   if (!threadValues) {
-    return <div>No state found</div>;
+    return <EmptyStateView />;
   }
 
   return (
@@ -271,18 +277,10 @@ export function StateView({
         </div>
       )}
       {view === "state" && (
-        <div className="flex flex-col items-start justify-start gap-1 pt-6 pb-2">
-          {Object.entries(threadValues).map(([k, v], idx) => (
-            <StateViewObject
-              expanded={expanded}
-              key={`state-view-${k}-${idx}`}
-              keyName={k}
-              value={v}
-            />
-          ))}
-        </div>
+        <ThreadStateView threadValues={threadValues} expanded={expanded} />
       )}
-      <div className="flex gap-2 items-start justify-end pt-6 pr-6">
+
+      <div className="absolute top-6 right-6 flex gap-2">
         {view === "state" && (
           <Button
             onClick={() => setExpanded((prev) => !prev)}
@@ -297,7 +295,6 @@ export function StateView({
             )}
           </Button>
         )}
-
         <Button
           onClick={() => handleShowSidePanel(false, false)}
           variant="ghost"

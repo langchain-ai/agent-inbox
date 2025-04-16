@@ -27,12 +27,8 @@ export function ThreadView<
       );
       if (selectedThread) {
         setThreadData(selectedThread);
-        // Only show description tab by default for interrupted threads
-        const isInterrupted =
-          selectedThread.status === "interrupted" &&
-          selectedThread.interrupts !== undefined &&
-          selectedThread.interrupts.length > 0;
-        setShowDescription(isInterrupted);
+        // Keep description hidden by default
+        setShowDescription(false);
         return;
       } else {
         // Route the user back to the inbox view.

@@ -30,7 +30,6 @@ function ButtonGroup({
   handleShowDescription,
   showingState,
   showingDescription,
-  isInterrupted,
 }: {
   handleShowState: () => void;
   handleShowDescription: () => void;
@@ -43,9 +42,7 @@ function ButtonGroup({
       <Button
         variant="outline"
         className={cn(
-          isInterrupted
-            ? "rounded-l-md rounded-r-none border-r-[0px]"
-            : "rounded-md",
+          "rounded-l-md rounded-r-none border-r-[0px]",
           showingState ? "text-black" : "bg-white"
         )}
         size="sm"
@@ -53,19 +50,17 @@ function ButtonGroup({
       >
         State
       </Button>
-      {isInterrupted && (
-        <Button
-          variant="outline"
-          className={cn(
-            "rounded-l-none rounded-r-md border-l-[0px]",
-            showingDescription ? "text-black" : "bg-white"
-          )}
-          size="sm"
-          onClick={handleShowDescription}
-        >
-          Description
-        </Button>
-      )}
+      <Button
+        variant="outline"
+        className={cn(
+          "rounded-l-none rounded-r-md border-l-[0px]",
+          showingDescription ? "text-black" : "bg-white"
+        )}
+        size="sm"
+        onClick={handleShowDescription}
+      >
+        Description
+      </Button>
     </div>
   );
 }
