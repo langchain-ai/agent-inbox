@@ -21,10 +21,10 @@ interface UseInterruptedActionsInput<
     thread: Thread<ThreadValues>;
     status: "interrupted";
     interrupts: HumanInterrupt[];
-  };
+  } | null;
   setThreadData: React.Dispatch<
     React.SetStateAction<ThreadData<ThreadValues> | undefined>
-  >;
+  > | null;
 }
 
 interface UseInterruptedActionsValue {
@@ -100,7 +100,7 @@ export default function useInterruptedActions<
 
   React.useEffect(() => {
     try {
-      if (!threadData.interrupts) return;
+      if (!threadData || !threadData.interrupts) return;
       const { responses, defaultSubmitType, hasAccept } =
         createDefaultHumanResponse(
           threadData.interrupts,
@@ -112,12 +112,20 @@ export default function useInterruptedActions<
     } catch (e) {
       console.error("Error formatting and setting human response state", e);
     }
-  }, [threadData.interrupts]);
+  }, [threadData?.interrupts]);
 
   const handleSubmit = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent
   ) => {
     e.preventDefault();
+    if (!threadData || !setThreadData) {
+      toast({
+        title: "Error",
+        description: "Thread data is not available",
+        duration: 5000,
+      });
+      return;
+    }
     if (!humanResponse) {
       toast({
         title: "Error",
@@ -303,7 +311,14 @@ export default function useInterruptedActions<
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
-
+    if (!threadData || !setThreadData) {
+      toast({
+        title: "Error",
+        description: "Thread data is not available",
+        duration: 5000,
+      });
+      return;
+    }
     const ignoreResponse = humanResponse.find((r) => r.type === "ignore");
     if (!ignoreResponse) {
       toast({
@@ -345,7 +360,14 @@ export default function useInterruptedActions<
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
-
+    if (!threadData || !setThreadData) {
+      toast({
+        title: "Error",
+        description: "Thread data is not available",
+        duration: 5000,
+      });
+      return;
+    }
     const currentInbox = getSearchParam(INBOX_PARAM) as
       | ThreadStatusWithAll
       | undefined;
@@ -369,27 +391,25 @@ export default function useInterruptedActions<
     updateQueryParams(VIEW_STATE_THREAD_QUERY_PARAM);
   };
 
-  const supportsMultipleMethods =
-    humanResponse.filter(
-      (r) => r.type === "edit" || r.type === "accept" || r.type === "response"
-    ).length > 1;
-
   return {
     handleSubmit,
     handleIgnore,
     handleResolve,
-    humanResponse,
     streaming,
     streamFinished,
     currentNode,
     loading,
-    threadId: threadData.thread.thread_id,
-    isIgnoreAllowed: !!humanResponse.find((r) => r.type === "ignore"),
-    supportsMultipleMethods,
+    threadId: threadData?.thread.thread_id || "",
+    isIgnoreAllowed: threadData?.interrupts?.[0]?.config.allow_ignore || false,
+    supportsMultipleMethods: !!(
+      threadData?.interrupts?.[0]?.config.allow_respond &&
+      threadData?.interrupts?.[0]?.config.allow_edit
+    ),
     selectedSubmitType,
     hasEdited,
     hasAddedResponse,
     acceptAllowed,
+    humanResponse,
     setSelectedSubmitType,
     setHumanResponse,
     setHasAddedResponse,

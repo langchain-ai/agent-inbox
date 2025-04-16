@@ -252,7 +252,17 @@ export function StateView({
   const [expanded, setExpanded] = useState(false);
 
   const threadValues = threadData.thread.values;
-  const description = threadData.interrupts?.[0].description;
+  const description = threadData.interrupts?.[0]?.description;
+  const isInterrupted =
+    threadData.status === "interrupted" &&
+    threadData.interrupts &&
+    threadData.interrupts.length > 0;
+
+  // Format dates for display
+  const createdAt = new Date(threadData.thread.created_at);
+  const updatedAt = new Date(threadData.thread.updated_at);
+  const formattedCreatedAt = createdAt.toLocaleString();
+  const formattedUpdatedAt = updatedAt.toLocaleString();
 
   if (!threadValues) {
     return <div>No state found</div>;
@@ -260,11 +270,66 @@ export function StateView({
 
   return (
     <div className="overflow-y-auto pl-6 border-t-[1px] lg:border-t-[0px] lg:border-l-[1px] border-gray-100 flex flex-row gap-0 w-full">
-      {view === "description" && isAgentInboxSchema && (
+      {view === "description" && isInterrupted && isAgentInboxSchema && (
         <div className="pt-6 pb-2">
           <MarkdownText className="text-wrap break-words whitespace-pre-wrap">
             {description || "No description provided"}
           </MarkdownText>
+        </div>
+      )}
+      {view === "description" && !isInterrupted && (
+        <div className="pt-6 pb-2 w-full">
+          <h3 className="text-lg font-medium mb-4">Thread Information</h3>
+
+          <div className="grid grid-cols-1 gap-3">
+            <div>
+              <h4 className="text-sm font-semibold text-gray-700">Status</h4>
+              <div className="mt-1 flex items-center">
+                <div
+                  className={cn(
+                    "w-3 h-3 rounded-full mr-2",
+                    threadData.status === "idle"
+                      ? "bg-gray-400"
+                      : threadData.status === "busy"
+                        ? "bg-blue-500"
+                        : "bg-red-500"
+                  )}
+                ></div>
+                <p className="text-sm capitalize">{threadData.status}</p>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold text-gray-700">Thread ID</h4>
+              <p className="text-sm font-mono mt-1">
+                {threadData.thread.thread_id}
+              </p>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold text-gray-700">
+                Created At
+              </h4>
+              <p className="text-sm mt-1">{formattedCreatedAt}</p>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold text-gray-700">
+                Last Updated
+              </h4>
+              <p className="text-sm mt-1">{formattedUpdatedAt}</p>
+            </div>
+
+            <div className="mt-2">
+              <h4 className="text-sm font-semibold text-gray-700">
+                Thread State Summary
+              </h4>
+              <p className="text-sm mt-1 italic">
+                View the complete state in the &quot;State&quot; tab for
+                detailed information.
+              </p>
+            </div>
+          </div>
         </div>
       )}
       {view === "state" && (
