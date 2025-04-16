@@ -77,7 +77,15 @@ export function BreadCrumb({ className }: { className?: string }) {
   };
 
   if (!agentInboxLabel) {
-    return null;
+    return (
+      <div
+        className={cn(
+          "flex items-center justify-start gap-2 text-gray-500 text-sm h-[34px]",
+          className
+        )}
+        aria-hidden="true"
+      />
+    );
   }
 
   return (
