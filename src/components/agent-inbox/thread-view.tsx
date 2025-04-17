@@ -3,7 +3,7 @@ import { StateView } from "./components/state-view";
 import { ThreadActionsView } from "./components/thread-actions-view";
 import { useThreadsContext } from "./contexts/ThreadContext";
 import { HumanInterrupt, ThreadData } from "./types";
-import React, { useEffect } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 import { useQueryParams } from "./hooks/use-query-params";
 import { VIEW_STATE_THREAD_QUERY_PARAM } from "./constants";
@@ -31,7 +31,7 @@ export function ThreadView<
       const selectedThread = threads.find(
         (t) => t.thread.thread_id === threadId
       );
-      
+
       if (selectedThread) {
         setThreadData(selectedThread);
         
@@ -39,9 +39,11 @@ export function ThreadView<
             selectedThread.interrupts && 
             selectedThread.interrupts.length > 0) {
           try {
-            const isValidSchema = isAgentInboxInterruptSchema(selectedThread.interrupts);
+            const isValidSchema = isAgentInboxInterruptSchema(
+              selectedThread.interrupts
+            );
             setIsAgentInboxSchema(isValidSchema);
-            
+
             // For non-agent inbox interrupts, always show state by default
             if (!isValidSchema) {
               setShowDescription(false);
@@ -50,7 +52,8 @@ export function ThreadView<
               
               toast({
                 title: "Non-standard interrupt format",
-                description: "This interrupt doesn't match the agent inbox schema, showing raw payload instead.",
+                description:
+                  "This interrupt doesn't match the agent inbox schema, showing raw payload instead.",
                 variant: "default",
                 duration: 3000,
               });
@@ -84,11 +87,11 @@ export function ThreadView<
       console.error("Cannot show both state and description");
       return;
     }
-    
+
     // If both are false, we're hiding the panel
     const newShowSidePanel = showState || showDescription;
     setShowSidePanel(newShowSidePanel);
-    
+
     if (showState) {
       setShowDescription(false);
       setShowState(true);
