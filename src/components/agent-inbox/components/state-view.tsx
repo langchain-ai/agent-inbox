@@ -21,6 +21,7 @@ import {
   NonInterruptedDescriptionView,
   ThreadStateView,
 } from "./views";
+import { isAgentInboxInterruptSchema } from "../utils/schema-validation";
 
 interface StateViewRecursiveProps {
   value: unknown;

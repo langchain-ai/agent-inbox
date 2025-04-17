@@ -1,11 +1,15 @@
+import { Thread } from "@langchain/langgraph-sdk";
 import { StateView } from "./components/state-view";
 import { ThreadActionsView } from "./components/thread-actions-view";
 import { useThreadsContext } from "./contexts/ThreadContext";
-import { ThreadData } from "./types";
-import React from "react";
+import { HumanInterrupt, ThreadData } from "./types";
+import React, { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useQueryParams } from "./hooks/use-query-params";
 import { VIEW_STATE_THREAD_QUERY_PARAM } from "./constants";
+import { isAgentInboxInterruptSchema } from "./utils/schema-validation";
+import { RawJsonInterruptView } from "./components/raw-json-interrupt-view";
+import { useToast } from "@/hooks/use-toast";
 
 export function ThreadView<
   ThreadValues extends Record<string, any> = Record<string, any>,
@@ -16,7 +20,9 @@ export function ThreadView<
     React.useState<ThreadData<ThreadValues>>();
   const [showDescription, setShowDescription] = React.useState(true);
   const [showState, setShowState] = React.useState(false);
-  const showSidePanel = showDescription || showState;
+  const [showSidePanel, setShowSidePanel] = React.useState(true);
+  const [isAgentInboxSchema, setIsAgentInboxSchema] = React.useState(true);
+  const { toast } = useToast();
 
   React.useEffect(() => {
     try {
@@ -25,9 +31,38 @@ export function ThreadView<
       const selectedThread = threads.find(
         (t) => t.thread.thread_id === threadId
       );
+      
       if (selectedThread) {
         setThreadData(selectedThread);
-        if (selectedThread.status !== "interrupted") {
+        
+        if (selectedThread.status === "interrupted" && 
+            selectedThread.interrupts && 
+            selectedThread.interrupts.length > 0) {
+          try {
+            const isValidSchema = isAgentInboxInterruptSchema(selectedThread.interrupts);
+            setIsAgentInboxSchema(isValidSchema);
+            
+            // For non-agent inbox interrupts, always show state by default
+            if (!isValidSchema) {
+              setShowDescription(false);
+              setShowState(true);
+              setShowSidePanel(true); // Ensure side panel is open
+              
+              toast({
+                title: "Non-standard interrupt format",
+                description: "This interrupt doesn't match the agent inbox schema, showing raw payload instead.",
+                variant: "default",
+                duration: 3000,
+              });
+            }
+          } catch (error) {
+            console.error("Error validating interrupt schema:", error);
+            setIsAgentInboxSchema(false);
+            setShowDescription(false);
+            setShowState(true);
+            setShowSidePanel(true); // Ensure side panel is open
+          }
+        } else if (selectedThread.status !== "interrupted") {
           // If the status is not interrupted, we should default to show state as there will be no description
           setShowState(true);
           setShowDescription(false);
@@ -39,7 +74,7 @@ export function ThreadView<
     } catch (e) {
       console.error("Error updating query params & setting thread data", e);
     }
-  }, [threads, loading, threadId]);
+  }, [threads, loading, threadId, toast]);
 
   const handleShowSidePanel = (
     showState: boolean,
@@ -49,6 +84,11 @@ export function ThreadView<
       console.error("Cannot show both state and description");
       return;
     }
+    
+    // If both are false, we're hiding the panel
+    const newShowSidePanel = showState || showDescription;
+    setShowSidePanel(newShowSidePanel);
+    
     if (showState) {
       setShowDescription(false);
       setShowState(true);
@@ -65,6 +105,11 @@ export function ThreadView<
     return null;
   }
 
+  // Check if we're dealing with an interrupted thread
+  const isInterruptedThread = threadData.status === "interrupted" &&
+    threadData.interrupts &&
+    threadData.interrupts.length > 0;
+
   return (
     <div className="flex flex-col lg:flex-row w-full h-full">
       <div
@@ -73,13 +118,26 @@ export function ThreadView<
           showSidePanel ? "lg:min-w-1/2 lg:max-w-2xl w-full" : "w-full"
         )}
       >
-        <ThreadActionsView<ThreadValues>
-          threadData={threadData}
-          setThreadData={setThreadData}
-          handleShowSidePanel={handleShowSidePanel}
-          showState={showState}
-          showDescription={showDescription}
-        />
+        {isInterruptedThread && !isAgentInboxSchema ? (
+          <RawJsonInterruptView<ThreadValues>
+            threadData={
+              threadData as {
+                thread: Thread<ThreadValues>;
+                status: "interrupted";
+                interrupts: any[];
+              }
+            }
+            handleShowSidePanel={handleShowSidePanel}
+          />
+        ) : (
+          <ThreadActionsView<ThreadValues>
+            threadData={threadData}
+            setThreadData={setThreadData}
+            handleShowSidePanel={handleShowSidePanel}
+            showState={showState}
+            showDescription={showDescription}
+          />
+        )}
       </div>
       <div
         className={cn(
@@ -91,6 +149,7 @@ export function ThreadView<
           handleShowSidePanel={handleShowSidePanel}
           threadData={threadData}
           view={showState ? "state" : "description"}
+          isAgentInboxSchema={isAgentInboxSchema}
         />
       </div>
     </div>
