@@ -6,15 +6,13 @@ import { VIEW_STATE_THREAD_QUERY_PARAM } from "../constants";
 import { useQueryParams } from "../hooks/use-query-params";
 import { Button } from "@/components/ui/button";
 import { ThreadIdCopyable } from "./thread-id";
-import { ThreadData } from "../types";
-import { cn } from "@/lib/utils";
 import { useThreadsContext } from "../contexts/ThreadContext";
 import { constructOpenInStudioURL } from "../utils";
 import { useToast } from "@/hooks/use-toast";
 import { StateViewObject } from "./state-view";
 
 interface RawJsonInterruptViewProps<
-  ThreadValues extends Record<string, any> = Record<string, any>
+  ThreadValues extends Record<string, any> = Record<string, any>,
 > {
   threadData: {
     thread: Thread<ThreadValues>;
@@ -25,7 +23,7 @@ interface RawJsonInterruptViewProps<
 }
 
 export function RawJsonInterruptView<
-  ThreadValues extends Record<string, any> = Record<string, any>
+  ThreadValues extends Record<string, any> = Record<string, any>,
 >({
   threadData,
   handleShowSidePanel,
@@ -35,7 +33,7 @@ export function RawJsonInterruptView<
   const { toast } = useToast();
   const interruptPayload = threadData.interrupts[0];
   const [expanded, setExpanded] = useState(true);
-  
+
   const deploymentUrl = agentInboxes.find((i) => i.selected)?.deploymentUrl;
 
   const handleOpenInStudio = () => {
@@ -69,7 +67,9 @@ export function RawJsonInterruptView<
           >
             <ArrowLeft className="w-5 h-5" />
           </TooltipIconButton>
-          <p className="text-2xl tracking-tighter text-pretty">Non-Agent Inbox Interrupt</p>
+          <p className="text-2xl tracking-tighter text-pretty">
+            Non-Agent Inbox Interrupt
+          </p>
           <ThreadIdCopyable threadId={threadData.thread.thread_id} />
         </div>
         <div className="flex flex-row gap-2 items-center justify-start">
@@ -87,7 +87,7 @@ export function RawJsonInterruptView<
             size="sm"
             variant="outline"
             className="flex items-center gap-1 bg-white"
-            onClick={() => handleShowSidePanel(true, false)} 
+            onClick={() => handleShowSidePanel(true, false)}
           >
             State
           </Button>
@@ -130,4 +130,4 @@ export function RawJsonInterruptView<
       </div>
     </div>
   );
-} 
+}

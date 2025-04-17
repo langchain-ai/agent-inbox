@@ -15,7 +15,6 @@ import { Button } from "../../ui/button";
 import { ToolCallTable } from "./tool-call-table";
 import { MarkdownText } from "@/components/ui/markdown-text";
 import { ThreadData } from "../types";
-import { isAgentInboxInterruptSchema } from "../utils/schema-validation";
 
 interface StateViewRecursiveProps {
   value: unknown;
