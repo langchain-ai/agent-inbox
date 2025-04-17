@@ -68,6 +68,9 @@ function ButtonGroup({
   );
 }
 
+// Export the ButtonGroup component for reuse
+export { ButtonGroup };
+
 export function ThreadActionsView<
   ThreadValues extends Record<string, any> = Record<string, any>,
 >({

@@ -15,6 +15,7 @@ import { Button } from "../../ui/button";
 import { ToolCallTable } from "./tool-call-table";
 import { MarkdownText } from "@/components/ui/markdown-text";
 import { ThreadData } from "../types";
+import { isAgentInboxInterruptSchema } from "../utils/schema-validation";
 
 interface StateViewRecursiveProps {
   value: unknown;
@@ -240,12 +241,14 @@ interface StateViewComponentProps {
   threadData: ThreadData<Record<string, any>>;
   handleShowSidePanel: (showState: boolean, showDescription: boolean) => void;
   view: "description" | "state";
+  isAgentInboxSchema: boolean;
 }
 
 export function StateView({
   threadData,
   handleShowSidePanel,
   view,
+  isAgentInboxSchema,
 }: StateViewComponentProps) {
   const [expanded, setExpanded] = useState(false);
 
@@ -258,7 +261,7 @@ export function StateView({
 
   return (
     <div className="overflow-y-auto pl-6 border-t-[1px] lg:border-t-[0px] lg:border-l-[1px] border-gray-100 flex flex-row gap-0 w-full">
-      {view === "description" && (
+      {view === "description" && isAgentInboxSchema && (
         <div className="pt-6 pb-2">
           <MarkdownText className="text-wrap break-words whitespace-pre-wrap">
             {description || "No description provided"}
