@@ -7,6 +7,7 @@ import { ThreadStatusWithAll } from "./types";
 import { Pagination } from "./components/pagination";
 import { Inbox as InboxIcon, LoaderCircle } from "lucide-react";
 import { InboxButtons } from "./components/inbox-buttons";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 interface AgentInboxViewProps<
   _ThreadValues extends Record<string, any> = Record<string, any>,
@@ -23,6 +24,109 @@ export function AgentInboxView<
   const selectedInbox = (getSearchParam(INBOX_PARAM) ||
     "interrupted") as ThreadStatusWithAll;
   const scrollableContentRef = React.useRef<HTMLDivElement>(null);
+  const [selectedThreadIndex, setSelectedThreadIndex] =
+    React.useState<number>(-1);
+
+  // Setup keyboard shortcuts for thread navigation with arrow keys
+  const navigateThreadsUp = React.useCallback(() => {
+    const threadItems = document.querySelectorAll(
+      '[class*="InterruptedInboxItem"], [class*="GenericInboxItem"]'
+    );
+    if (!threadItems.length) return;
+
+    // Navigate to previous thread with wrap-around
+    const newIndex =
+      selectedThreadIndex <= 0
+        ? threadItems.length - 1
+        : selectedThreadIndex - 1;
+    setSelectedThreadIndex(newIndex);
+
+    // Scroll the selected thread into view
+    threadItems[newIndex].scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    // Add visual indicator (could be done with a class or style)
+    threadItems.forEach((item, idx) => {
+      if (idx === newIndex) {
+        item.classList.add("thread-selected");
+      } else {
+        item.classList.remove("thread-selected");
+      }
+    });
+  }, [selectedThreadIndex]);
+
+  const navigateThreadsDown = React.useCallback(() => {
+    const threadItems = document.querySelectorAll(
+      '[class*="InterruptedInboxItem"], [class*="GenericInboxItem"]'
+    );
+    if (!threadItems.length) return;
+
+    // Navigate to next thread with wrap-around
+    const newIndex =
+      selectedThreadIndex >= threadItems.length - 1
+        ? 0
+        : selectedThreadIndex + 1;
+    setSelectedThreadIndex(newIndex);
+
+    // Scroll the selected thread into view
+    threadItems[newIndex].scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    // Add visual indicator
+    threadItems.forEach((item, idx) => {
+      if (idx === newIndex) {
+        item.classList.add("thread-selected");
+      } else {
+        item.classList.remove("thread-selected");
+      }
+    });
+  }, [selectedThreadIndex]);
+
+  const openSelectedThread = React.useCallback(() => {
+    const threadItems = document.querySelectorAll(
+      '[class*="InterruptedInboxItem"], [class*="GenericInboxItem"]'
+    );
+    if (
+      !threadItems.length ||
+      selectedThreadIndex < 0 ||
+      selectedThreadIndex >= threadItems.length
+    )
+      return;
+
+    // First save scroll position
+    handleThreadClick();
+
+    // Then simulate click on the selected thread
+    (threadItems[selectedThreadIndex] as HTMLElement).click();
+  }, [selectedThreadIndex]);
+
+  // Configure keyboard shortcuts
+  useKeyboardShortcuts({
+    shortcuts: React.useMemo(
+      () => [
+        {
+          key: "ArrowUp",
+          description: "Navigate to previous thread",
+          handler: navigateThreadsUp,
+        },
+        {
+          key: "ArrowDown",
+          description: "Navigate to next thread",
+          handler: navigateThreadsDown,
+        },
+        {
+          key: "Enter",
+          description: "Open selected thread",
+          handler: openSelectedThread,
+        },
+      ],
+      [navigateThreadsUp, navigateThreadsDown, openSelectedThread]
+    ),
+  });
 
   // Register scroll event listener to automatically save scroll position whenever user scrolls
   React.useEffect(() => {
