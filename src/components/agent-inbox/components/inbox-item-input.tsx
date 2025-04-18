@@ -6,13 +6,17 @@ import {
   SubmitType,
 } from "../types";
 import { Textarea } from "@/components/ui/textarea";
-import React from "react";
+import React, { useRef } from "react";
 import { haveArgsChanged, prettifyText } from "../utils";
 import { MarkdownText } from "@/components/ui/markdown-text";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { CircleX, LoaderCircle, Undo2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAgentInboxShortcuts } from "@/hooks/use-keyboard-shortcuts";
+
+// Assigning a CSS class for easy identification from keyboard shortcuts
+const INBOX_ITEM_INPUT_CLASS = "InboxItemInput";
 
 function ResetButton({ handleReset }: { handleReset: () => void }) {
   return (
@@ -89,6 +93,7 @@ function ResponseComponent({
   interruptValue,
   onResponseChange,
   handleSubmit,
+  responseInputRef,
 }: {
   humanResponse: HumanResponseWithEdits[];
   streaming: boolean;
@@ -98,6 +103,7 @@ function ResponseComponent({
   handleSubmit: (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent
   ) => Promise<void>;
+  responseInputRef?: React.RefObject<HTMLTextAreaElement>;
 }) {
   const res = humanResponse.find((r) => r.type === "response");
   if (!res || typeof res.args !== "string") {
@@ -131,6 +137,7 @@ function ResponseComponent({
       <div className="flex flex-col gap-[6px] items-start w-full">
         <p className="text-sm min-w-fit font-medium">Response</p>
         <Textarea
+          ref={responseInputRef}
           disabled={streaming}
           value={res.args}
           onChange={(e) => onResponseChange(e.target.value, res)}
@@ -490,11 +497,31 @@ export function InboxItemInput({
     });
   };
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const responseInputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Use our custom hook for keyboard shortcuts
+  const { textInputValuesRef } = useAgentInboxShortcuts();
+
+  // Store initial input values for undo functionality
+  React.useEffect(() => {
+    // Store the initial values of all editable fields
+    const textareas = containerRef.current?.querySelectorAll("textarea");
+    if (textareas) {
+      textareas.forEach((textarea) => {
+        if (!textInputValuesRef.current.has(textarea)) {
+          textInputValuesRef.current.set(textarea, textarea.value);
+        }
+      });
+    }
+  }, [textInputValuesRef]);
+
   return (
     <div
+      ref={containerRef}
       className={cn(
         "w-full flex flex-col items-start justify-start gap-2 shadow-sm",
-        ""
+        INBOX_ITEM_INPUT_CLASS
       )}
     >
       {showArgsOutsideActionCards && (
@@ -524,6 +551,7 @@ export function InboxItemInput({
           interruptValue={interruptValue}
           onResponseChange={onResponseChange}
           handleSubmit={handleSubmit}
+          responseInputRef={responseInputRef}
         />
         {streaming && !currentNode && (
           <p className="text-sm text-gray-600">Waiting for Graph to start...</p>
