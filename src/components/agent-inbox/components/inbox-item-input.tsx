@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { CircleX, LoaderCircle, Undo2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { logger } from "../utils/logger";
 
 function ResetButton({ handleReset }: { handleReset: () => void }) {
   return (
@@ -390,7 +391,7 @@ export function InboxItemInput({
 
     setHumanResponse((prev) => {
       if (typeof response.args !== "object" || !response.args) {
-        console.error(
+        logger.error(
           "Mismatched response type",
           !!response.args,
           typeof response.args

@@ -6,6 +6,7 @@ import { AgentInboxView } from "./inbox-view";
 import { ThreadView } from "./thread-view";
 import { useScrollPosition } from "./hooks/use-scroll-position";
 import { usePathname, useSearchParams } from "next/navigation";
+import { logger } from "./utils/logger";
 
 export function AgentInbox<
   ThreadValues extends Record<string, any> = Record<string, any>,
@@ -109,7 +110,7 @@ export function AgentInbox<
         setSelectedInbox(currentInbox);
       }
     } catch (e) {
-      console.error("Error updating query params & setting inbox", e);
+      logger.error("Error updating query params & setting inbox", e);
     }
   }, [searchParams]);
 

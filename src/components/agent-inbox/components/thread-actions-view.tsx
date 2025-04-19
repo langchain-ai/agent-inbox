@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useQueryParams } from "../hooks/use-query-params";
 import { useThreadsContext } from "../contexts/ThreadContext";
 import { useState } from "react";
+import { logger } from "../utils/logger";
 
 interface ThreadActionsViewProps<
   ThreadValues extends Record<string, any> = Record<string, any>,
@@ -169,7 +170,7 @@ export function ThreadActionsView<
         duration: 3000,
       });
     } catch (error) {
-      console.error("Error refreshing thread:", error);
+      logger.error("Error refreshing thread:", error);
       toast({
         title: "Error",
         description: "Failed to refresh thread information.",

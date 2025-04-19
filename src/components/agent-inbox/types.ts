@@ -91,4 +91,8 @@ export interface AgentInbox {
    * Whether or not the inbox is selected.
    */
   selected: boolean;
+  /**
+   * The tenant ID for the deployment (only for deployed graphs).
+   */
+  tenantId?: string;
 }

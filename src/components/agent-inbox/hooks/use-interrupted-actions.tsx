@@ -13,6 +13,7 @@ import { useThreadsContext } from "../contexts/ThreadContext";
 import { createDefaultHumanResponse } from "../utils";
 import { INBOX_PARAM, VIEW_STATE_THREAD_QUERY_PARAM } from "../constants";
 import { useQueryParams } from "./use-query-params";
+import { logger } from "../utils/logger";
 
 interface UseInterruptedActionsInput<
   ThreadValues extends Record<string, any> = Record<string, any>,
@@ -110,7 +111,7 @@ export default function useInterruptedActions<
       setHumanResponse(responses);
       setAcceptAllowed(hasAccept);
     } catch (e) {
-      console.error("Error formatting and setting human response state", e);
+      logger.error("Error formatting and setting human response state", e);
     }
   }, [threadData?.interrupts]);
 
@@ -253,7 +254,7 @@ export default function useInterruptedActions<
           setStreamFinished(true);
         }
       } catch (e: any) {
-        console.error("Error sending human response", e);
+        logger.error("Error sending human response", e);
 
         if ("message" in e && e.message.includes("Invalid assistant ID")) {
           toast({
