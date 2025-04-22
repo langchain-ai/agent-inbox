@@ -6,6 +6,10 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { useQueryParams } from "./hooks/use-query-params";
 import { VIEW_STATE_THREAD_QUERY_PARAM } from "./constants";
+import {
+  useKeyboardShortcuts,
+  useAgentInboxShortcuts,
+} from "@/hooks/use-keyboard-shortcuts";
 
 export function ThreadView<
   ThreadValues extends Record<string, any> = Record<string, any>,
@@ -17,6 +21,23 @@ export function ThreadView<
   const [showDescription, setShowDescription] = React.useState(true);
   const [showState, setShowState] = React.useState(false);
   const showSidePanel = showDescription || showState;
+
+  // Use our custom hook that provides keyboard shortcut handlers
+  const { closeThread } = useAgentInboxShortcuts();
+
+  // Setup keyboard shortcuts for navigating back to inbox
+  const shortcuts = React.useMemo(
+    () => [
+      {
+        key: "e",
+        description: "Close thread and return to inbox",
+        handler: closeThread,
+      },
+    ],
+    [closeThread]
+  );
+
+  useKeyboardShortcuts({ shortcuts });
 
   // Scroll to top when thread view is mounted
   React.useEffect(() => {
