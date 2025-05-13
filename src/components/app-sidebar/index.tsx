@@ -33,6 +33,8 @@ import {
 import { AddAgentInboxDialog } from "../agent-inbox/components/add-agent-inbox-dialog";
 import { useLocalStorage } from "../agent-inbox/hooks/use-local-storage";
 import { DropdownDialogMenu } from "../agent-inbox/components/dropdown-and-dialog";
+import { Button } from "../ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function AppSidebar() {
   const { agentInboxes, changeAgentInbox, deleteAgentInbox } =
@@ -178,20 +180,36 @@ export function AppSidebarTrigger({
   className?: string;
 }) {
   const { toggleSidebar, open } = useSidebar();
+  const isMobile = useIsMobile();
 
-  if (isOutside && open) {
-    // If this component is being rendered outside the sidebar view, then do not render if open.
-    // This way we can render the trigger inside the main view when open.
-    return null;
+  // On desktop, keep the current behavior
+  if (!isMobile) {
+    if (isOutside && open) {
+      return null;
+    }
+    return (
+      <TooltipIconButton
+        tooltip="Toggle Sidebar"
+        onClick={toggleSidebar}
+        className={className}
+      >
+        {sidebarTriggerSVG}
+      </TooltipIconButton>
+    );
   }
 
+  // On mobile, always show a floating button
   return (
-    <TooltipIconButton
-      tooltip="Toggle Sidebar"
+    <Button
       onClick={toggleSidebar}
-      className={className}
+      variant="default"
+      size="icon"
+      className={
+        "fixed bottom-4 left-4 z-50 rounded-full shadow-lg bg-primary text-white p-4 flex items-center justify-center"
+      }
+      aria-label="Toggle Sidebar"
     >
       {sidebarTriggerSVG}
-    </TooltipIconButton>
+    </Button>
   );
 }

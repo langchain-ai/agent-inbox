@@ -64,7 +64,17 @@ export function InboxButtons({
   const selectedInbox = searchParams.get(INBOX_PARAM) || "interrupted";
 
   return (
-    <div className="flex w-full gap-2 items-center justify-start">
+    <div
+      className={
+        cn(
+          // Mobile: fixed, centered, rounded, shadow, overflow-x-auto
+          "flex w-full gap-2 items-center justify-start",
+          "sm:static sm:rounded-none sm:shadow-none sm:bg-transparent sm:mx-0 sm:mb-0",
+          "fixed bottom-4 left-1/2 -translate-x-1/2 z-40 max-w-xs rounded-full bg-white shadow-lg px-2 py-1 gap-1 mx-2 overflow-x-auto no-scrollbar",
+        )
+      }
+      style={{ WebkitOverflowScrolling: "touch" }}
+    >
       <InboxButton
         label="All"
         selectedInbox={selectedInbox}
