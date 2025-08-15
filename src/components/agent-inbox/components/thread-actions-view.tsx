@@ -504,30 +504,32 @@ export function ThreadActionsView<
 
       {/* Interrupted thread actions */}
       <div className="flex flex-row gap-2 items-center justify-start w-full">
-        <Button
-          variant="outline"
-          className="text-gray-800 border-gray-500 font-normal bg-white"
-          onClick={actions?.handleResolve}
-          disabled={actions?.loading}
-        >
-          Mark as Resolved
-        </Button>
         {ignoreAllowed && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={actions?.handleIgnore}
-                disabled={actions?.loading}
-              >
-                Ignore
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              Ignore this interrupt and end the thread.
-            </TooltipContent>
-          </Tooltip>
+          <>
+            <Button
+              variant="outline"
+              className="text-gray-800 border-gray-500 font-normal bg-white"
+              onClick={actions?.handleResolve}
+              disabled={actions?.loading}
+            >
+              Mark as Resolved
+            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={actions?.handleIgnore}
+                  disabled={actions?.loading}
+                >
+                  Ignore
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Ignore this interrupt and end the thread.
+              </TooltipContent>
+            </Tooltip>
+          </>
         )}
       </div>
 
