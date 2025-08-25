@@ -10,7 +10,7 @@
 Before getting started, ensure you have:
 - Node.js, and yarn installed
 - A LangGraph deployment set up and running (locally, or in production through LangGraph Platform)
-- Your LangGraph API key
+- Your LangSmith API key
 
 ## Setup
 
