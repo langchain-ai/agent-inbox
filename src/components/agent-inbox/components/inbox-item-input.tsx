@@ -6,6 +6,7 @@ import {
   SubmitType,
 } from "../types";
 import { Textarea } from "@/components/ui/textarea";
+import { TagInput } from "@/components/ui/tag-input";
 import React from "react";
 import { haveArgsChanged, prettifyText } from "../utils";
 import { MarkdownText } from "@/components/ui/markdown-text";
@@ -45,7 +46,7 @@ function ArgsRenderer({ args }: { args: Record<string, any> }) {
               {prettifyText(k)}:
             </p>
             <span className="text-[13px] leading-[18px] text-black bg-zinc-100 rounded-xl p-3 w-full max-w-full">
-              <MarkdownText className="text-wrap break-all break-words whitespace-pre-wrap">
+              <MarkdownText className="text-wrap break-all break-words">
                 {value}
               </MarkdownText>
             </span>
@@ -136,7 +137,8 @@ function ResponseComponent({
           value={res.args}
           onChange={(e) => onResponseChange(e.target.value, res)}
           onKeyDown={handleKeyDown}
-          rows={4}
+          minRows={4}
+          maxRows={20}
           placeholder="Your response here..."
         />
       </div>
@@ -200,7 +202,19 @@ function EditAndOrAcceptComponent({
     e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent
   ) => Promise<void>;
 }) {
+  // Legacy sizing ref no longer needed with autosizing textarea, retained if future per-field control desired
   const defaultRows = React.useRef<Record<string, number>>({});
+  // Capture original boolean keys from the interrupt so we can keep rendering radios
+  const originalBooleanKeys = React.useMemo(() => {
+    const keys: Record<string, true> = {};
+    const args = interruptValue?.action_request?.args || {};
+    Object.entries(args).forEach(([k, v]) => {
+      if (typeof v === "boolean") {
+        keys[k] = true;
+      }
+    });
+    return keys;
+  }, [interruptValue]);
   const editResponse = humanResponse.find((r) => r.type === "edit");
   const acceptResponse = humanResponse.find((r) => r.type === "accept");
   if (
@@ -267,21 +281,73 @@ function EditAndOrAcceptComponent({
       </div>
 
       {Object.entries(editResponse.args.args).map(([k, v], idx) => {
-        const value = ["string", "number"].includes(typeof v)
-          ? v
-          : JSON.stringify(v, null);
-        // Calculate the default number of rows by the total length of the initial value divided by 30
-        // or 8, whichever is greater. Stored in a ref to prevent re-rendering.
-        if (
-          defaultRows.current[k as keyof typeof defaultRows.current] ===
-          undefined
-        ) {
-          defaultRows.current[k as keyof typeof defaultRows.current] = !v.length
-            ? 3
-            : Math.max(v.length / 30, 7);
+        // Determine if this key started as a boolean OR remains a primitive boolean
+        const isBoolean =
+          typeof v === "boolean" ||
+          (originalBooleanKeys[k] && (v === "true" || v === "false"));
+        // Normalize to string for consistent state shape when editing
+        const value = ["string", "number", "boolean"].includes(typeof v)
+          ? String(v)
+          : isBoolean
+            ? String(v)
+            : JSON.stringify(v, null);
+        const isStringArray = Array.isArray(v) && v.every((i) => typeof i === "string");
+  // Autosize handles vertical sizing, we keep minRows via prop on Textarea.
+
+  if (isBoolean) {
+          return (
+            <div
+              className="flex flex-col gap-1 items-start w-full h-full px-[1px]"
+              key={`allow-edit-args--${k}-${idx}`}
+            >
+              <div className="flex flex-col gap-[6px] items-start w-full">
+                <p className="text-sm min-w-fit font-medium">{prettifyText(k)}</p>
+                <div className="flex gap-4 items-center">
+                  <label className="flex items-center gap-1 text-sm">
+                    <input
+                      type="radio"
+                      name={`bool-${k}`}
+                      value="true"
+                      disabled={streaming}
+                      checked={value === "true"}
+                      onChange={() => onEditChange("true", editResponse, k)}
+                    />
+                    True
+                  </label>
+                  <label className="flex items-center gap-1 text-sm">
+                    <input
+                      type="radio"
+                      name={`bool-${k}`}
+                      value="false"
+                      disabled={streaming}
+                      checked={value === "false"}
+                      onChange={() => onEditChange("false", editResponse, k)}
+                    />
+                    False
+                  </label>
+                </div>
+              </div>
+            </div>
+          );
         }
-        const numRows =
-          defaultRows.current[k as keyof typeof defaultRows.current] || 8;
+
+        if (isStringArray) {
+          return (
+            <div
+              className="flex flex-col gap-1 items-start w-full h-full px-[1px]"
+              key={`allow-edit-args--${k}-${idx}`}
+            >
+              <div className="flex flex-col gap-[6px] items-start w-full">
+                <p className="text-sm min-w-fit font-medium">{prettifyText(k)}</p>
+                <TagInput
+                  disabled={streaming}
+                  value={v as string[]}
+                  onChange={(next) => onEditChange(next, editResponse, k)}
+                />
+              </div>
+            </div>
+          );
+        }
 
         return (
           <div
@@ -296,7 +362,8 @@ function EditAndOrAcceptComponent({
                 value={value}
                 onChange={(e) => onEditChange(e.target.value, editResponse, k)}
                 onKeyDown={handleKeyDown}
-                rows={numRows}
+                minRows={2}
+                maxRows={18}
               />
             </div>
           </div>
@@ -346,10 +413,12 @@ export function InboxItemInput({
     response: HumanResponseWithEdits,
     key: string | string[]
   ) => {
-    if (
-      (Array.isArray(change) && !Array.isArray(key)) ||
-      (!Array.isArray(change) && Array.isArray(key))
-    ) {
+    // Allow three shapes:
+    // 1. change: string, key: string – update single value
+    // 2. change: string[], key: string – update a single arg whose value is an array (TagInput case)
+    // 3. change: string[], key: string[] – batch update multiple keys (reset flow)
+    // Any other combination is unexpected.
+    if (!Array.isArray(change) && Array.isArray(key)) {
       toast({
         title: "Error",
         description: "Something went wrong",
@@ -363,14 +432,17 @@ export function InboxItemInput({
       const updatedArgs = { ...(response.args?.args || {}) };
 
       if (Array.isArray(change) && Array.isArray(key)) {
-        // Handle array inputs by mapping corresponding values
+        // Batch update: map each change[i] to key[i]
         change.forEach((value, index) => {
           if (index < key.length) {
             updatedArgs[key[index]] = value;
           }
         });
+      } else if (Array.isArray(change) && !Array.isArray(key)) {
+        // Single field holds an array value
+        updatedArgs[key as string] = change;
       } else {
-        // Handle single value case
+        // Standard single value update
         updatedArgs[key as string] = change as string;
       }
 
@@ -410,10 +482,15 @@ export function InboxItemInput({
                   ...response.args.args,
                   ...Object.fromEntries(key.map((k, i) => [k, change[i]])),
                 }
-              : {
-                  ...response.args.args,
-                  [key as string]: change as string,
-                },
+              : Array.isArray(change) && !Array.isArray(key)
+                ? {
+                    ...response.args.args,
+                    [key as string]: change,
+                  }
+                : {
+                    ...response.args.args,
+                    [key as string]: change as string,
+                  },
         },
       };
       if (

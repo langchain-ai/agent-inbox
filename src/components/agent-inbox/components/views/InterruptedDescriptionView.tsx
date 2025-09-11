@@ -9,7 +9,7 @@ export function InterruptedDescriptionView({
 }: InterruptedDescriptionViewProps) {
   return (
     <div className="pt-6 pb-2">
-      <MarkdownText className="text-wrap break-words whitespace-pre-wrap">
+      <MarkdownText className="text-wrap break-words">
         {description || "No description provided"}
       </MarkdownText>
     </div>

@@ -17,7 +17,7 @@ import {
   LIMIT_PARAM,
   OFFSET_PARAM,
   LANGCHAIN_API_KEY_LOCAL_STORAGE_KEY,
-  IMPROPER_SCHEMA,
+  IMPROPER_SCHEMA
 } from "../constants";
 import {
   getInterruptFromThread,
@@ -36,6 +36,10 @@ type ThreadContentType<
   threadData: ThreadData<ThreadValues>[];
   hasMoreThreads: boolean;
   agentInboxes: AgentInbox[];
+  /** Number of times a fetchThreads call has been attempted this session */
+  fetchAttemptCount: number;
+  autoRefreshEnabled: boolean; // whether polling is enabled
+  toggleAutoRefresh: (value?: boolean) => void; // toggle or explicitly set
   deleteAgentInbox: (id: string) => void;
   changeAgentInbox: (graphId: string, replaceAll?: boolean) => void;
   addAgentInbox: (agentInbox: AgentInbox) => void;
@@ -123,6 +127,11 @@ export function ThreadsProvider<
     ThreadData<ThreadValues>[]
   >([]);
   const [hasMoreThreads, setHasMoreThreads] = React.useState(true);
+  const [fetchAttemptCount, setFetchAttemptCount] = React.useState(0);
+  // auto-refresh state
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = React.useState<boolean>(
+    true
+  );
 
   const {
     agentInboxes,
@@ -157,6 +166,7 @@ export function ThreadsProvider<
   const fetchThreads = React.useCallback(
     async (inbox: ThreadStatusWithAll) => {
       setLoading(true);
+  setFetchAttemptCount((c) => c + 1);
 
       const client = getClient({
         agentInboxes,
@@ -305,6 +315,45 @@ export function ThreadsProvider<
     },
     [agentInboxes, getItem, getSearchParam, toast]
   );
+
+  // Toggle / set auto-refresh preference
+  const toggleAutoRefresh = React.useCallback((value?: boolean) => {
+    setAutoRefreshEnabled((prev) => (value === undefined ? !prev : value));
+  }, []);
+
+  // Polling effect: refetch current inbox periodically
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!autoRefreshEnabled) return;
+    if (!agentInboxes.length) return; // nothing selected yet
+    const inboxSearchParam = getSearchParam(INBOX_PARAM) as
+      | ThreadStatusWithAll
+      | undefined;
+    if (!inboxSearchParam) return;
+
+    // Do not start another interval if currently loading; we'll still schedule next tick
+    let aborted = false;
+    let intervalId: number | undefined;
+
+    const run = async () => {
+      if (aborted) return;
+      if (!loading) {
+        try {
+          await fetchThreads(inboxSearchParam);
+        } catch (e) {
+          logger.error("Polling fetchThreads error", e);
+        }
+      }
+    };
+
+  // Kick off immediate fetch (debounced by loading flag) and then schedule
+  run();
+  intervalId = window.setInterval(run, 15_000);
+    return () => {
+      aborted = true;
+      if (intervalId) window.clearInterval(intervalId);
+    };
+  }, [autoRefreshEnabled, agentInboxes, fetchThreads, loading, getSearchParam]);
 
   const fetchSingleThread = React.useCallback(
     async (threadId: string): Promise<ThreadData<ThreadValues> | undefined> => {
@@ -471,6 +520,9 @@ export function ThreadsProvider<
     threadData,
     hasMoreThreads,
     agentInboxes,
+  fetchAttemptCount,
+    autoRefreshEnabled,
+    toggleAutoRefresh,
     deleteAgentInbox,
     changeAgentInbox,
     addAgentInbox,

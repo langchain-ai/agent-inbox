@@ -81,6 +81,7 @@
     "react-json-view": "^1.21.3",
     "react-markdown": "^9.0.1",
     "react-syntax-highlighter": "^15.5.0",
+    "react-textarea-autosize": "^8.5.9",
     "rehype-katex": "^7.0.1",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
