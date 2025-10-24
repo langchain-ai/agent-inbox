@@ -193,7 +193,7 @@ export function AgentInboxView<
       </div>
       <div
         ref={scrollableContentRef}
-        className="flex flex-col items-start w-full max-h-fit h-full border-y-[1px] border-gray-50 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 mt-3"
+        className="flex flex-col items-start w-full max-h-fit h-full border-y-[1px] border-pink-100 overflow-y-auto scrollbar-thin scrollbar-thumb-pink-300 scrollbar-track-pink-100 mt-3 rounded-xl"
       >
         {threadDataToRender.map((threadData, idx) => {
           return (

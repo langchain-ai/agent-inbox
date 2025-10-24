@@ -17,7 +17,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Agent Inbox",
-  description: "Agent Inbox UX by LangChain",
+  description: "Agent Inbox - Cute AI Interface",
 };
 
 export default function RootLayout({
@@ -39,8 +39,8 @@ export default function RootLayout({
                   <BreadCrumb className="pl-5" />
                   <div
                     className={cn(
-                      "h-full bg-white rounded-tl-[58px]",
-                      "overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                      "h-full bg-white rounded-tl-[68px] shadow-lg shadow-pink-100/50",
+                      "overflow-x-auto scrollbar-thin scrollbar-thumb-pink-300 scrollbar-track-pink-100"
                     )}
                   >
                     {children}

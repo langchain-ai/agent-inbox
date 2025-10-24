@@ -31,11 +31,40 @@ const config: Config = {
   					'background-size': '200% 200%',
   					'background-position': 'right center'
   				}
+  			},
+  			'float': {
+  				'0%, 100%': {
+  					transform: 'translateY(0px)'
+  				},
+  				'50%': {
+  					transform: 'translateY(-8px)'
+  				}
+  			},
+  			'sparkle': {
+  				'0%, 100%': {
+  					opacity: '1',
+  					transform: 'scale(1)'
+  				},
+  				'50%': {
+  					opacity: '0.6',
+  					transform: 'scale(1.2)'
+  				}
+  			},
+  			'wiggle': {
+  				'0%, 100%': {
+  					transform: 'rotate(-3deg)'
+  				},
+  				'50%': {
+  					transform: 'rotate(3deg)'
+  				}
   			}
   		},
   		animation: {
   			'gradient-xy-enhanced': 'gradient-xy-enhanced 15s ease infinite',
-  			'gradient-x': 'gradient-x 3s ease-in-out infinite'
+  			'gradient-x': 'gradient-x 3s ease-in-out infinite',
+  			'float': 'float 3s ease-in-out infinite',
+  			'sparkle': 'sparkle 2s ease-in-out infinite',
+  			'wiggle': 'wiggle 1s ease-in-out infinite'
   		},
   		backgroundImage: {
   			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
@@ -44,7 +73,10 @@ const config: Config = {
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
+  			sm: 'calc(var(--radius) - 4px)',
+  			xl: '1.5rem',
+  			'2xl': '2rem',
+  			'3xl': '3rem'
   		},
   		colors: {
   			background: 'hsl(var(--background))',
