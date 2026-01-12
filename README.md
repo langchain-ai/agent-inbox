@@ -45,9 +45,9 @@ These values are stored in your browser's local storage, and are only used to co
 
 ## Interrupts
 
-There are two ways to configure Agent Inbox with your LangGraph project:
-1. **Easiest - Middleware:** If you are already using the LangChain [Human-in-the-Loop middleware](https://docs.langchain.com/oss/python/langchain/human-in-the-loop), you can substitute `HumanInTheLoopMiddleware` with the AgentInboxMiddleware [`backend/agent_inbox_middleware.py`](backend/agent_inbox_middleware.py)
-2. **Custom interrupts:** If you are not already using this middleware, you can update all instances of where interrupts are used in your codebase (where you want them to be compatible with the Agent Inbox).  For details on this method, keeping reading the rest of this section.
+There are **two ways** to configure Agent Inbox with your LangGraph project:
+1. **Easiest (middleware):** If you are already using the LangChain [human-in-the-loop middleware](https://docs.langchain.com/oss/python/langchain/human-in-the-loop), you can substitute `HumanInTheLoopMiddleware` with the AgentInboxMiddleware [`backend/agent_inbox_middleware.py`](backend/agent_inbox_middleware.py)
+2. **Custom interrupts:** If you are not already using the LangChain human-in-the-loop middleware, you must update all instances of where interrupts are used in your codebase (where you want them to be compatible with the Agent Inbox).  For details on this method, keeping reading the rest of this section.
 
 Below, you'll find the interrupt input & output schemas for both Python and TypeScript.
 
