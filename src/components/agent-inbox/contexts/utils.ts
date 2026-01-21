@@ -3,6 +3,48 @@ import { AgentInbox, HumanInterrupt, ThreadData } from "../types";
 import { validate } from "uuid";
 import { IMPROPER_SCHEMA } from "../constants";
 
+/**
+ * Normalizes interrupt data from LangChain HITL middleware format to agent-inbox format.
+ * HITL middleware: { action_requests: [{name, arguments}], review_configs: [{allowed_decisions}] }
+ * Agent-inbox: { action_request: {action, args}, config: {allow_*}, description }
+ * @see https://docs.langchain.com/oss/python/langchain/human-in-the-loop
+ */
+function normalizeInterrupt(raw: unknown): HumanInterrupt | null {
+  if (!raw || typeof raw !== "object") return null;
+
+  const data = raw as Record<string, unknown>;
+
+  if (
+    !Array.isArray(data.action_requests) ||
+    data.action_requests.length === 0
+  ) {
+    return null;
+  }
+
+  const req = data.action_requests[0] as Record<string, unknown>;
+  const reviewConfigs = Array.isArray(data.review_configs)
+    ? data.review_configs
+    : [];
+  const firstConfig = reviewConfigs[0] as Record<string, unknown> | undefined;
+  const decisions: string[] = Array.isArray(firstConfig?.allowed_decisions)
+    ? (firstConfig.allowed_decisions as string[])
+    : [];
+
+  return {
+    action_request: {
+      action: (req.name as string) ?? "",
+      args: (req.arguments as Record<string, unknown>) ?? {},
+    },
+    config: {
+      allow_accept: decisions.includes("approve"),
+      allow_edit: decisions.includes("edit"),
+      allow_respond: decisions.includes("reject"),
+      allow_ignore: false,
+    },
+    description: req.description as string | undefined,
+  };
+}
+
 // TODO: Delete this once interrupt issue fixed.
 export const tmpCleanInterrupts = (interrupts: Record<string, any[]>) => {
   return Object.fromEntries(
@@ -42,6 +84,10 @@ export function getInterruptFromThread(
 
             // Case 2: First item has a value property
             if (interrupt[0]?.value !== undefined) {
+              // Try HITL middleware format first
+              const normalized = normalizeInterrupt(interrupt[0].value);
+              if (normalized) return normalized;
+
               const value = interrupt[0].value;
 
               // Handle case where value is a valid JSON string
@@ -252,6 +298,12 @@ export function processThreadWithoutInterrupts<
       thread,
       interrupts: undefined,
     };
+  }
+
+  // Try HITL middleware format first
+  const normalized = normalizeInterrupt(lastInterrupt.value);
+  if (normalized) {
+    return { status: "interrupted", thread, interrupts: [normalized] };
   }
 
   return {
