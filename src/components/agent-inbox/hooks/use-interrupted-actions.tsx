@@ -94,6 +94,8 @@ export default function useInterruptedActions<
   const [hasAddedResponse, setHasAddedResponse] = React.useState(false);
   const [acceptAllowed, setAcceptAllowed] = React.useState(false);
 
+  const isHitlMiddleware = threadData?.interrupts?.[0]?._isHitlMiddleware ?? false;
+
   React.useEffect(() => {
     try {
       if (
@@ -205,7 +207,6 @@ export default function useInterruptedActions<
 
         setLoading(true);
         setStreaming(true);
-        const isHitlMiddleware = threadData.interrupts?.[0]?._isHitlMiddleware ?? false;
         const response = sendHumanResponse(
           threadData.thread.thread_id,
           [input],
@@ -303,7 +304,6 @@ export default function useInterruptedActions<
       }
     } else {
       setLoading(true);
-      const isHitlMiddleware = threadData.interrupts?.[0]?._isHitlMiddleware ?? false;
       await sendHumanResponse(threadData.thread.thread_id, humanResponse, { isHitlMiddleware });
 
       toast({
@@ -351,7 +351,6 @@ export default function useInterruptedActions<
     setLoading(true);
     initialHumanInterruptEditValue.current = {};
 
-    const isHitlMiddleware = threadData.interrupts?.[0]?._isHitlMiddleware ?? false;
     await sendHumanResponse(threadData.thread.thread_id, [ignoreResponse], { isHitlMiddleware });
     await fetchThreads(currentInbox);
 
