@@ -36,7 +36,7 @@ function normalizeInterrupt(raw: unknown): HumanInterrupt | null {
   return {
     action_request: {
       action: (req.name as string) ?? "",
-      args: (req.arguments as Record<string, unknown>) ?? {},
+      args: (req.args ?? req.arguments ?? {}) as Record<string, unknown>,
     },
     config: {
       allow_accept: hasDecisions ? decisions.includes("approve") : true,
