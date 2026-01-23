@@ -414,6 +414,8 @@ export function ThreadsProvider<
     response: HumanResponse[],
     options?: {
       stream?: TStream;
+      /** If true, format response for langchain HITL middleware */
+      isHitlMiddleware?: boolean;
     }
   ): TStream extends true
     ?
@@ -443,17 +445,31 @@ export function ThreadsProvider<
       return;
     }
     try {
+      let resumePayload: unknown;
+      if (options?.isHitlMiddleware) {
+        // Map agent-inbox types to langchain HITL middleware types
+        // accept -> approve, response -> reject, edit -> edit
+        const mappedResponse = response.map((r) => ({
+          ...r,
+          type: r.type === "accept" ? "approve" : r.type === "response" ? "reject" : r.type,
+        }));
+        // Wrap response in {decisions: [...]} for langchain HITL middleware compatibility
+        resumePayload = { decisions: mappedResponse };
+      } else {
+        // Native agent-inbox format - send as-is
+        resumePayload = response;
+      }
       if (options?.stream) {
         return client.runs.stream(threadId, graphId, {
           command: {
-            resume: response,
+            resume: resumePayload,
           },
           streamMode: "events",
         }) as any; // Type assertion needed due to conditional return type
       }
       return client.runs.create(threadId, graphId, {
         command: {
-          resume: response,
+          resume: resumePayload,
         },
       }) as any; // Type assertion needed due to conditional return type
     } catch (e: any) {

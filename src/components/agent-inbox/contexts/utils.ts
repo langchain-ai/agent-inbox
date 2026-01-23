@@ -30,18 +30,22 @@ function normalizeInterrupt(raw: unknown): HumanInterrupt | null {
     ? (firstConfig.allowed_decisions as string[])
     : [];
 
+  // Default to allowing all actions if no decisions specified
+  const hasDecisions = decisions.length > 0;
+
   return {
     action_request: {
       action: (req.name as string) ?? "",
       args: (req.arguments as Record<string, unknown>) ?? {},
     },
     config: {
-      allow_accept: decisions.includes("approve"),
-      allow_edit: decisions.includes("edit"),
-      allow_respond: decisions.includes("reject"),
+      allow_accept: hasDecisions ? decisions.includes("approve") : true,
+      allow_edit: hasDecisions ? decisions.includes("edit") : true,
+      allow_respond: hasDecisions ? decisions.includes("reject") : true,
       allow_ignore: false,
     },
     description: req.description as string | undefined,
+    _isHitlMiddleware: true,
   };
 }
 

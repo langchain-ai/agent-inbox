@@ -205,11 +205,13 @@ export default function useInterruptedActions<
 
         setLoading(true);
         setStreaming(true);
+        const isHitlMiddleware = threadData.interrupts?.[0]?._isHitlMiddleware ?? false;
         const response = sendHumanResponse(
           threadData.thread.thread_id,
           [input],
           {
             stream: true,
+            isHitlMiddleware,
           }
         );
         if (!response) {
@@ -301,7 +303,8 @@ export default function useInterruptedActions<
       }
     } else {
       setLoading(true);
-      await sendHumanResponse(threadData.thread.thread_id, humanResponse);
+      const isHitlMiddleware = threadData.interrupts?.[0]?._isHitlMiddleware ?? false;
+      await sendHumanResponse(threadData.thread.thread_id, humanResponse, { isHitlMiddleware });
 
       toast({
         title: "Success",
@@ -348,7 +351,8 @@ export default function useInterruptedActions<
     setLoading(true);
     initialHumanInterruptEditValue.current = {};
 
-    await sendHumanResponse(threadData.thread.thread_id, [ignoreResponse]);
+    const isHitlMiddleware = threadData.interrupts?.[0]?._isHitlMiddleware ?? false;
+    await sendHumanResponse(threadData.thread.thread_id, [ignoreResponse], { isHitlMiddleware });
     await fetchThreads(currentInbox);
 
     setLoading(false);

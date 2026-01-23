@@ -30,6 +30,8 @@ export interface HumanInterrupt {
   action_request: ActionRequest;
   config: HumanInterruptConfig;
   description?: string;
+  /** True if this interrupt came from langchain HITL middleware format */
+  _isHitlMiddleware?: boolean;
 }
 
 /**
