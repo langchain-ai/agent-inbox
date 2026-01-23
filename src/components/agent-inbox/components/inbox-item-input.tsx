@@ -28,45 +28,10 @@ function ResetButton({ handleReset }: { handleReset: () => void }) {
   );
 }
 
-function isImageUrl(url: string): boolean {
-  if (typeof url !== "string") return false;
-  const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"];
-  const lowerUrl = url.toLowerCase();
-  return (
-    (lowerUrl.startsWith("http://") || lowerUrl.startsWith("https://")) &&
-    imageExtensions.some((ext) => lowerUrl.includes(ext))
-  );
-}
-
 function ArgsRenderer({ args }: { args: Record<string, any> }) {
   return (
     <div className="flex flex-col gap-6 items-start w-full">
       {Object.entries(args).map(([k, v]) => {
-        // Handle array of image URLs
-        if (
-          Array.isArray(v) &&
-          v.length > 0 &&
-          v.every((item) => isImageUrl(item))
-        ) {
-          return (
-            <div key={`args-${k}`} className="flex flex-col gap-2 items-start w-full">
-              <p className="text-sm leading-[18px] text-gray-600 text-wrap">
-                {prettifyText(k)}:
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {v.map((url, idx) => (
-                  <img
-                    key={`${k}-img-${idx}`}
-                    src={url}
-                    alt={`${k} ${idx + 1}`}
-                    className="max-w-[200px] max-h-[200px] rounded-lg border border-gray-200 object-cover"
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        }
-
         let value = "";
         if (["string", "number"].includes(typeof v)) {
           value = v as string;
