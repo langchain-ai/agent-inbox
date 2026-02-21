@@ -16,11 +16,12 @@ interface AgentInboxViewProps<
 > {
   saveScrollPosition: (element?: HTMLElement | null) => void;
   containerRef: React.RefObject<HTMLDivElement>;
+  focusedIndex: number;
 }
 
 export function AgentInboxView<
   ThreadValues extends Record<string, any> = Record<string, any>,
->({ saveScrollPosition, containerRef }: AgentInboxViewProps<ThreadValues>) {
+>({ saveScrollPosition, containerRef, focusedIndex }: AgentInboxViewProps<ThreadValues>) {
   const { searchParams, updateQueryParams, getSearchParam } = useQueryParams();
   const { loading, threadData, agentInboxes, clearThreadData } =
     useThreadsContext<ThreadValues>();
@@ -197,12 +198,17 @@ export function AgentInboxView<
       >
         {threadDataToRender.map((threadData, idx) => {
           return (
-            <InboxItem<ThreadValues>
+            <div
               key={`inbox-item-${threadData.thread.thread_id}`}
-              threadData={threadData}
-              isLast={idx === threadDataToRender.length - 1}
-              onThreadClick={handleThreadClick}
-            />
+              data-inbox-item-index={idx}
+            >
+              <InboxItem<ThreadValues>
+                threadData={threadData}
+                isLast={idx === threadDataToRender.length - 1}
+                isFocused={idx === focusedIndex}
+                onThreadClick={handleThreadClick}
+              />
+            </div>
           );
         })}
         {noThreadsFound && !loading && (

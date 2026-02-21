@@ -101,6 +101,14 @@ function ResponseComponent({
   ) => Promise<void>;
 }) {
   const res = humanResponse.find((r) => r.type === "response");
+
+  React.useEffect(() => {
+    if (!res) return;
+    const handler = () => onResponseChange("", res);
+    window.addEventListener("hotkey:reset", handler);
+    return () => window.removeEventListener("hotkey:reset", handler);
+  }, [onResponseChange, res]);
+
   if (!res || typeof res.args !== "string") {
     return null;
   }
@@ -132,6 +140,7 @@ function ResponseComponent({
       <div className="flex flex-col gap-[6px] items-start w-full">
         <p className="text-sm min-w-fit font-medium">Response</p>
         <Textarea
+          data-hotkey-target="response-input"
           disabled={streaming}
           value={res.args}
           onChange={(e) => onResponseChange(e.target.value, res)}
@@ -203,29 +212,8 @@ function EditAndOrAcceptComponent({
   const defaultRows = React.useRef<Record<string, number>>({});
   const editResponse = humanResponse.find((r) => r.type === "edit");
   const acceptResponse = humanResponse.find((r) => r.type === "accept");
-  if (
-    !editResponse ||
-    typeof editResponse.args !== "object" ||
-    !editResponse.args
-  ) {
-    if (acceptResponse) {
-      return (
-        <AcceptComponent
-          actionRequestArgs={interruptValue?.action_request?.args || {}}
-          streaming={streaming}
-          handleSubmit={handleSubmit}
-        />
-      );
-    }
-    return null;
-  }
-  const header = editResponse.acceptAllowed ? "Edit/Accept" : "Edit";
-  let buttonText = "Submit";
-  if (editResponse.acceptAllowed && !editResponse.editsMade) {
-    buttonText = "Accept";
-  }
 
-  const handleReset = () => {
+  const handleReset = React.useCallback(() => {
     if (
       !editResponse ||
       typeof editResponse.args !== "object" ||
@@ -250,7 +238,35 @@ function EditAndOrAcceptComponent({
     if (keysToReset.length > 0 && valuesToReset.length > 0) {
       onEditChange(valuesToReset, editResponse, keysToReset);
     }
-  };
+  }, [editResponse, initialValues, onEditChange]);
+
+  React.useEffect(() => {
+    const handler = () => handleReset();
+    window.addEventListener("hotkey:reset", handler);
+    return () => window.removeEventListener("hotkey:reset", handler);
+  }, [handleReset]);
+
+  if (
+    !editResponse ||
+    typeof editResponse.args !== "object" ||
+    !editResponse.args
+  ) {
+    if (acceptResponse) {
+      return (
+        <AcceptComponent
+          actionRequestArgs={interruptValue?.action_request?.args || {}}
+          streaming={streaming}
+          handleSubmit={handleSubmit}
+        />
+      );
+    }
+    return null;
+  }
+  const header = editResponse.acceptAllowed ? "Edit/Accept" : "Edit";
+  let buttonText = "Submit";
+  if (editResponse.acceptAllowed && !editResponse.editsMade) {
+    buttonText = "Accept";
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
@@ -291,6 +307,7 @@ function EditAndOrAcceptComponent({
             <div className="flex flex-col gap-[6px] items-start w-full">
               <p className="text-sm min-w-fit font-medium">{prettifyText(k)}</p>
               <Textarea
+                {...(idx === 0 ? { "data-hotkey-target": "edit-input" } : {})}
                 disabled={streaming}
                 className="h-full"
                 value={value}
