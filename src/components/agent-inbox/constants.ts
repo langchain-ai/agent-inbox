@@ -9,5 +9,6 @@ export const NO_INBOXES_FOUND_PARAM = "no_inboxes_found";
 export const AGENT_INBOX_GITHUB_README_URL =
   "https://github.com/langchain-ai/agent-inbox/blob/main/README.md";
 
+export const ANALYTICS_EVENTS_LOCAL_STORAGE_KEY = "inbox:analytics_events";
 export const IMPROPER_SCHEMA = "improper_schema";
 export const STUDIO_NOT_WORKING_TROUBLESHOOTING_URL = `${AGENT_INBOX_GITHUB_README_URL}#the-open-in-studio-button-doesnt-work-for-my-deployed-graphs`;

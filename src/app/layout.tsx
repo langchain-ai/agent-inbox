@@ -3,6 +3,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
 import { ThreadsProvider } from "@/components/agent-inbox/contexts/ThreadContext";
+import { AnalyticsProvider } from "@/components/agent-inbox/analytics/AnalyticsContext";
 import React from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar, AppSidebarTrigger } from "@/components/app-sidebar";
@@ -31,6 +32,7 @@ export default function RootLayout({
         <React.Suspense fallback={<div>Loading (layout)...</div>}>
           <Toaster />
           <ThreadsProvider>
+            <AnalyticsProvider>
             <SidebarProvider>
               <AppSidebar />
               <main className="flex flex-row w-full min-h-full pt-6 pl-6 gap-6">
@@ -48,6 +50,7 @@ export default function RootLayout({
                 </div>
               </main>
             </SidebarProvider>
+            </AnalyticsProvider>
           </ThreadsProvider>
         </React.Suspense>
       </body>
