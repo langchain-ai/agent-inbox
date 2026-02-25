@@ -31,7 +31,6 @@
     "@codemirror/lang-xml": "^6.1.0",
     "@faker-js/faker": "^9.2.0",
     "@langchain/anthropic": "^0.3.6",
-    "@langchain/community": "^0.3.9",
     "@langchain/core": "^0.3.80",
     "@langchain/google-genai": "^0.1.2",
     "@langchain/langgraph": "^0.2.23",
@@ -71,7 +70,7 @@
     "js-cookie": "^3.0.5",
     "langchain": "^0.3.37",
     "langsmith": "^0.1.61",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "lucide-react": "^0.468.0",
     "next": "15.5.10",
     "react": "^18",
@@ -117,6 +116,12 @@
     "form-data": ">=4.0.4",
     "fast-xml-parser": ">=5.3.6",
     "linkifyjs": ">=4.3.2",
-    "glob": ">=10.5.0"
+    "glob": ">=10.5.0",
+    "katex": ">=0.16.21",
+    "esbuild": ">=0.25.0",
+    "prismjs": ">=1.30.0",
+    "@babel/runtime": ">=7.26.10",
+    "mdast-util-to-hast": ">=13.2.1",
+    "markdown-it": ">=14.1.1"
   }
 }
