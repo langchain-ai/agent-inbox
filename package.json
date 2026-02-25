@@ -69,7 +69,7 @@
     "framer-motion": "^11.11.9",
     "js-cookie": "^3.0.5",
     "langchain": "^0.3.37",
-    "langsmith": "^0.1.61",
+    "langsmith": "^0.4.6",
     "lodash": "^4.17.23",
     "lucide-react": "^0.468.0",
     "next": "15.5.10",
@@ -122,6 +122,9 @@
     "prismjs": ">=1.30.0",
     "@babel/runtime": ">=7.26.10",
     "mdast-util-to-hast": ">=13.2.1",
-    "markdown-it": ">=14.1.1"
+    "markdown-it": ">=14.1.1",
+    "langsmith": ">=0.4.6",
+    "@supabase/auth-js": ">=2.69.1",
+    "diff": ">=5.2.2"
   }
 }
