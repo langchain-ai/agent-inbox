@@ -291,6 +291,51 @@ export interface DeploymentInfoResponse {
 }
 
 /**
+ * Verifies that a deployment URL is reachable by pinging its /info endpoint.
+ * Works for both local (localhost) and deployed (cloud) URLs.
+ * @param url The deployment URL to verify
+ * @param options Optional configuration (e.g. timeout in ms, default 5000)
+ */
+export async function verifyDeploymentUrl(
+  url: string,
+  options?: { timeoutMs?: number }
+): Promise<{ reachable: boolean; error?: string }> {
+  const timeoutMs = options?.timeoutMs ?? 5000;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const baseUrl = url.replace(/\/$/, "");
+    const response = await fetch(`${baseUrl}/info`, {
+      method: "GET",
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      return {
+        reachable: false,
+        error: `Server responded with status ${response.status}`,
+      };
+    }
+
+    return { reachable: true };
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return {
+        reachable: false,
+        error: "Connection timed out. Make sure the server is running.",
+      };
+    }
+    return {
+      reachable: false,
+      error: "Could not connect. Make sure the server is running and the URL is correct.",
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
  * Fetches information about a deployment from its /info endpoint
  * @param deploymentUrl The URL of the deployment to fetch info from
  */
