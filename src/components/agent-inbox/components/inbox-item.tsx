@@ -13,12 +13,13 @@ interface InboxItemProps<
 > {
   threadData: ThreadData<ThreadValues>;
   isLast: boolean;
+  isFocused?: boolean;
   onThreadClick?: (id: string) => void;
 }
 
 export function InboxItem<
   ThreadValues extends Record<string, any> = Record<string, any>,
->({ threadData, isLast, onThreadClick }: InboxItemProps<ThreadValues>) {
+>({ threadData, isLast, isFocused, onThreadClick }: InboxItemProps<ThreadValues>) {
   const { searchParams } = useQueryParams();
 
   const inbox = (searchParams.get(INBOX_PARAM) ||
@@ -32,6 +33,7 @@ export function InboxItem<
           <InterruptedInboxItem
             threadData={interruptedData}
             isLast={isLast}
+            isFocused={isFocused}
             onThreadClick={onThreadClick || (() => {})}
           />
         );
@@ -44,6 +46,7 @@ export function InboxItem<
               interrupts: undefined,
             }}
             isLast={isLast}
+            isFocused={isFocused}
           />
         );
       }
@@ -61,6 +64,7 @@ export function InboxItem<
             status: adaptedStatus,
           }}
           isLast={isLast}
+          isFocused={isFocused}
         />
       );
     }
@@ -73,6 +77,7 @@ export function InboxItem<
         <InterruptedInboxItem
           threadData={interruptedData}
           isLast={isLast}
+          isFocused={isFocused}
           onThreadClick={onThreadClick || (() => {})}
         />
       );
@@ -85,6 +90,7 @@ export function InboxItem<
             interrupts: undefined,
           }}
           isLast={isLast}
+          isFocused={isFocused}
         />
       );
     }
@@ -104,6 +110,7 @@ export function InboxItem<
           status: adaptedStatus,
         }}
         isLast={isLast}
+        isFocused={isFocused}
       />
     );
   }

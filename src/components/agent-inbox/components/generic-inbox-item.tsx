@@ -26,11 +26,12 @@ interface GenericInboxItemProps<
         interrupts?: undefined;
       };
   isLast: boolean;
+  isFocused?: boolean;
 }
 
 export function GenericInboxItem<
   ThreadValues extends Record<string, any> = Record<string, any>,
->({ threadData, isLast }: GenericInboxItemProps<ThreadValues>) {
+>({ threadData, isLast, isFocused }: GenericInboxItemProps<ThreadValues>) {
   const { updateQueryParams } = useQueryParams();
   const { toast } = useToast();
   const { agentInboxes } = useThreadsContext();
@@ -97,7 +98,8 @@ export function GenericInboxItem<
       }
       className={cn(
         "grid grid-cols-12 w-full p-4 py-4.5 cursor-pointer hover:bg-gray-50/90 transition-colors ease-in-out h-[71px]",
-        !isLast && "border-b-[1px] border-gray-200"
+        !isLast && "border-b-[1px] border-gray-200",
+        isFocused && "ring-2 ring-blue-400 bg-blue-50/50"
       )}
     >
       <div className="col-span-1 flex justify-center items-center">
