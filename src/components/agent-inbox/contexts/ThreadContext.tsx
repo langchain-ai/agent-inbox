@@ -300,6 +300,13 @@ export function ThreadsProvider<
         setHasMoreThreads(threads.length === limit);
       } catch (e) {
         logger.error("Failed to fetch threads", e);
+        toast({
+          title: "Connection failed",
+          description:
+            "Could not reach the deployment URL. Make sure the server is running.",
+          variant: "destructive",
+          duration: 5000,
+        });
       }
       setLoading(false);
     },

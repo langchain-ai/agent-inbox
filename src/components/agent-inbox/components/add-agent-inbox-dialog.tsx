@@ -20,7 +20,7 @@ import {
   LANGCHAIN_API_KEY_LOCAL_STORAGE_KEY,
 } from "../constants";
 import { PasswordInput } from "@/components/ui/password-input";
-import { isDeployedUrl, fetchDeploymentInfo } from "../utils";
+import { isDeployedUrl, fetchDeploymentInfo, verifyDeploymentUrl } from "../utils";
 import { useLocalStorage } from "../hooks/use-local-storage";
 import { LoaderCircle } from "lucide-react";
 import { logger } from "../utils/logger";
@@ -72,6 +72,17 @@ export function AddAgentInboxDialog({
     setErrorMessage(null);
 
     try {
+      // Verify the deployment URL is reachable before proceeding
+      const connectionCheck = await verifyDeploymentUrl(deploymentUrl);
+      if (!connectionCheck.reachable) {
+        setErrorMessage(
+          connectionCheck.error ||
+            "Could not connect to the deployment URL. Make sure the server is running."
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
       const isDeployed = isDeployedUrl(deploymentUrl);
       let inboxId = uuidv4();
       let fetchedTenantId: string | undefined | null = undefined;
