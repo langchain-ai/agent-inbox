@@ -106,7 +106,7 @@
     "postcss": "^8",
     "prettier": "^3.3.3",
     "tailwind-scrollbar": "^3.1.0",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^3.4.19",
     "tsx": "^4.19.1",
     "typescript": "^5",
     "typescript-eslint": "^8.8.1"
