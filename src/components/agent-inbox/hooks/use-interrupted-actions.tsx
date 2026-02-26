@@ -12,6 +12,7 @@ import { useThreadsContext } from "../contexts/ThreadContext";
 import { createDefaultHumanResponse } from "../utils";
 import { INBOX_PARAM, VIEW_STATE_THREAD_QUERY_PARAM } from "../constants";
 import { useQueryParams } from "./use-query-params";
+import { useAnalytics } from "../analytics/AnalyticsContext";
 import { logger } from "../utils/logger";
 
 interface UseInterruptedActionsInput<
@@ -75,6 +76,7 @@ export default function useInterruptedActions<
   const { updateQueryParams, getSearchParam } = useQueryParams();
   const { fetchSingleThread, fetchThreads, sendHumanResponse, ignoreThread } =
     useThreadsContext<ThreadValues>();
+  const { trackEvent } = useAnalytics();
 
   const [humanResponse, setHumanResponse] = React.useState<
     HumanResponseWithEdits[]
@@ -285,6 +287,9 @@ export default function useInterruptedActions<
       }
 
       if (!errorOccurred) {
+        if (selectedSubmitType) {
+          trackEvent(selectedSubmitType, threadData.thread.thread_id);
+        }
         setCurrentNode("");
         setStreaming(false);
         const updatedThreadData = await fetchSingleThread(
@@ -350,6 +355,7 @@ export default function useInterruptedActions<
 
     await sendHumanResponse(threadData.thread.thread_id, [ignoreResponse]);
     await fetchThreads(currentInbox);
+    trackEvent("ignore", threadData.thread.thread_id);
 
     setLoading(false);
     toast({
@@ -389,6 +395,7 @@ export default function useInterruptedActions<
 
     await ignoreThread(threadData.thread.thread_id);
     await fetchThreads(currentInbox);
+    trackEvent("resolve", threadData.thread.thread_id);
 
     setLoading(false);
     updateQueryParams(VIEW_STATE_THREAD_QUERY_PARAM);
