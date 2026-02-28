@@ -27,7 +27,8 @@ export function SettingsPopover() {
   const [langchainApiKey, setLangchainApiKey] = React.useState("");
   const { getItem, setItem } = useLocalStorage();
   const { getSearchParam } = useQueryParams();
-  const { fetchThreads } = useThreadsContext();
+  const { fetchThreads, autoRefreshEnabled, toggleAutoRefresh } =
+    useThreadsContext();
   const [isRunningBackfill, setIsRunningBackfill] = React.useState(false);
   const [backfillCompleted, setBackfillCompleted] = React.useState(true);
   const { toast } = useToast();
@@ -50,6 +51,10 @@ export function SettingsPopover() {
       logger.error("Error getting/setting LangSmith API key", e);
     }
   }, [langchainApiKey]);
+
+  const handleToggleAutoRefresh = (e: React.ChangeEvent<HTMLInputElement>) => {
+    toggleAutoRefresh(e.target.checked);
+  };
 
   const handleChangeLangChainApiKey = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -146,6 +151,24 @@ export function SettingsPopover() {
                 value={langchainApiKey}
                 onChange={handleChangeLangChainApiKey}
               />
+            </div>
+            <div className="flex flex-col items-start gap-2 w-full border-t pt-4">
+              <div className="flex flex-col gap-1 w-full items-start">
+                <Label htmlFor="auto-refresh-toggle">Auto Refresh</Label>
+                <p className="text-xs text-muted-foreground">Automatically poll the selected inbox for new threads.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  id="auto-refresh-toggle"
+                  type="checkbox"
+                  className="h-4 w-4"
+                  checked={autoRefreshEnabled}
+                  onChange={handleToggleAutoRefresh}
+                />
+                <span className="text-sm text-muted-foreground">
+                  {autoRefreshEnabled ? "Enabled" : "Disabled"}
+                </span>
+              </div>
             </div>
             {!backfillCompleted && (
               <div className="flex flex-col items-start gap-2 w-full border-t pt-4">
