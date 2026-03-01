@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { FileText, UploadCloud, House } from "lucide-react";
+import { UserInfo } from "../auth/user-info";
 import { agentInboxSvg } from "../agent-inbox/components/agent-inbox-logo";
 import { SettingsPopover } from "../agent-inbox/components/settings-popover";
 import { PillButton } from "../ui/pill-button";
@@ -143,6 +144,8 @@ export function AppSidebar() {
                     <span>Documentation</span>
                   </PillButton>
                 </NextLink>
+
+                <UserInfo />
               </div>
             </SidebarMenu>
           </SidebarGroupContent>
