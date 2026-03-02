@@ -147,15 +147,18 @@ export function AddAgentInboxDialog({
         description: "Agent inbox added successfully",
         duration: 3000,
       });
-      updateQueryParams(NO_INBOXES_FOUND_PARAM);
 
       setGraphId("");
       setDeploymentUrl("");
       setName("");
       setOpen(false);
 
-      // Force page reload to ensure the new inbox appears
-      window.location.reload();
+      // Build a clean URL without the no_inboxes_found param
+      // This avoids the race condition where window.location.reload()
+      // fires before async router.replace() can remove the param
+      const url = new URL(window.location.href);
+      url.searchParams.delete(NO_INBOXES_FOUND_PARAM);
+      window.location.href = url.toString();
     } catch (error) {
       logger.error("Error adding agent inbox:", error);
       setErrorMessage(
