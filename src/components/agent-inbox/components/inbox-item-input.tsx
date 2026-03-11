@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { CircleX, LoaderCircle, Undo2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { logger } from "../utils/logger";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 function ResetButton({ handleReset }: { handleReset: () => void }) {
   return (
@@ -125,11 +126,39 @@ function ResponseComponent({
         />
       </div>
 
-      {showArgsInResponse && interruptValue?.action_request?.args && (
+      {/*{showArgsInResponse && interruptValue?.action_request?.args && (
         <ArgsRenderer args={interruptValue.action_request.args} />
+      )}*/}
+
+      {Array.isArray(interruptValue?.action_request?.args?.options) && (
+        <ToggleGroup
+          type="single" // For single selection (like radio toggles); use "multiple" if you need multi-select
+          className="flex flex-wrap gap-2"
+          value={res.args} // Bind to current selected value (assuming res.args is a string)
+          onValueChange={(value) => {
+            onResponseChange(value || "", res); // Handle selection/deselection
+          }}
+          disabled={streaming}
+        >
+          {(
+            interruptValue.action_request.args.options as {
+              value: string;
+              label: string;
+            }[]
+          ).map((opt) => (
+            <ToggleGroupItem
+              key={opt.value}
+              value={opt.value}
+              variant="outline"
+              size="sm"
+            >
+              {opt.label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
       )}
 
-      <div className="flex flex-col gap-[6px] items-start w-full">
+      {/*<div className="flex flex-col gap-[6px] items-start w-full">
         <p className="text-sm min-w-fit font-medium">Response</p>
         <Textarea
           disabled={streaming}
@@ -139,11 +168,11 @@ function ResponseComponent({
           rows={4}
           placeholder="Your response here..."
         />
-      </div>
+      </div>*/}
 
       <div className="flex items-center justify-end w-full gap-2">
         <Button variant="brand" disabled={streaming} onClick={handleSubmit}>
-          Send Response
+          Submit
         </Button>
       </div>
     </div>
