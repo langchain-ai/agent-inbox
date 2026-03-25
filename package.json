@@ -72,7 +72,7 @@
     "langsmith": "^0.4.6",
     "lodash": "^4.17.23",
     "lucide-react": "^0.468.0",
-    "next": "15.5.10",
+    "next": "15.5.14",
     "react": "^18",
     "react-colorful": "^5.6.1",
     "react-dom": "^18",
@@ -106,7 +106,7 @@
     "postcss": "^8",
     "prettier": "^3.3.3",
     "tailwind-scrollbar": "^3.1.0",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^3.4.19",
     "tsx": "^4.19.1",
     "typescript": "^5",
     "typescript-eslint": "^8.8.1"
