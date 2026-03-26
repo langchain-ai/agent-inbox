@@ -93,32 +93,41 @@ export default function useInterruptedActions<
   // Whether or not the user has added a response.
   const [hasAddedResponse, setHasAddedResponse] = React.useState(false);
   const [acceptAllowed, setAcceptAllowed] = React.useState(false);
+  // Track last thread ID we initialized for, so we don't clobber local edits
+  const lastInitializedThreadId = React.useRef<string | null>(null);
 
   React.useEffect(() => {
     try {
-      if (
-        !threadData ||
-        !threadData.interrupts ||
-        threadData.interrupts.length === 0
-      )
+      if (!threadData || !threadData.interrupts || threadData.interrupts.length === 0) {
         return;
-      const { responses, defaultSubmitType, hasAccept } =
-        createDefaultHumanResponse(
+      }
+      const currentThreadId = threadData.thread.thread_id;
+      const isSameThread = lastInitializedThreadId.current === currentThreadId;
+      // If we already initialized this thread and user has edits, skip reinitialization
+      if (isSameThread && humanResponse.length > 0 && hasEdited) {
+        return;
+      }
+      // Only reinitialize if new thread OR we have no existing responses (e.g., first load)
+      if (!isSameThread || humanResponse.length === 0) {
+        const { responses, defaultSubmitType, hasAccept } = createDefaultHumanResponse(
           threadData.interrupts,
-          initialHumanInterruptEditValue
+            initialHumanInterruptEditValue
         );
-      setSelectedSubmitType(defaultSubmitType);
-      setHumanResponse(responses);
-      setAcceptAllowed(hasAccept);
+        lastInitializedThreadId.current = currentThreadId;
+        setSelectedSubmitType(defaultSubmitType);
+        setHumanResponse(responses);
+        setAcceptAllowed(hasAccept);
+      }
     } catch (e) {
       console.error("Error formatting and setting human response state", e);
-      // Set fallback values for invalid interrupts
       setHumanResponse([{ type: "ignore", args: null }]);
       setSelectedSubmitType(undefined);
       setAcceptAllowed(false);
       logger.error("Error formatting and setting human response state", e);
     }
-  }, [threadData?.interrupts]);
+  // We intentionally include hasEdited & humanResponse length for guarding logic, but avoid triggering on every content change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [threadData?.interrupts, threadData?.thread.thread_id, hasEdited]);
 
   const handleSubmit = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent

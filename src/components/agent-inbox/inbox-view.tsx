@@ -22,7 +22,7 @@ export function AgentInboxView<
   ThreadValues extends Record<string, any> = Record<string, any>,
 >({ saveScrollPosition, containerRef }: AgentInboxViewProps<ThreadValues>) {
   const { searchParams, updateQueryParams, getSearchParam } = useQueryParams();
-  const { loading, threadData, agentInboxes, clearThreadData } =
+  const { loading, threadData, agentInboxes, clearThreadData, fetchAttemptCount } =
     useThreadsContext<ThreadValues>();
   const selectedInbox = (getSearchParam(INBOX_PARAM) ||
     "interrupted") as ThreadStatusWithAll;
@@ -152,6 +152,9 @@ export function AgentInboxView<
     [selectedInbox, threadData]
   );
   const noThreadsFound = !threadDataToRender.length;
+  // We only want to show the pure loading empty state before the first fetch attempt has completed.
+  // After at least one attempt, if there are still no threads, show the empty state instead of a spinner.
+  const showInitialLoadingEmpty = noThreadsFound && loading && fetchAttemptCount === 0;
 
   // Correct way to save scroll position before navigation
   const handleThreadClick = () => {
@@ -205,7 +208,7 @@ export function AgentInboxView<
             />
           );
         })}
-        {noThreadsFound && !loading && (
+  {noThreadsFound && (!loading || fetchAttemptCount > 0) && (
           <div className="w-full flex items-center justify-center p-4 flex-col">
             <div className="flex gap-2 items-center justify-center text-gray-700 mb-4">
               <InboxIcon className="w-6 h-6" />
@@ -213,7 +216,7 @@ export function AgentInboxView<
             </div>
           </div>
         )}
-        {noThreadsFound && loading && (
+  {showInitialLoadingEmpty && (
           <div className="w-full flex items-center justify-center p-4">
             <div className="flex gap-2 items-center justify-center text-gray-700">
               <p className="font-medium">Loading</p>

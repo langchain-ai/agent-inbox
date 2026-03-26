@@ -151,6 +151,26 @@ a {
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Reintroduce some native element spacing & list styles while keeping Tailwind utilities.
+     This softens the effect of Preflight without disabling it entirely. */
+  h1, h2, h3, h4, h5, h6,
+  p,
+  ul, ol,
+  blockquote {
+    margin: revert; /* Restore default top/bottom margins */
+  }
+
+  ul, ol {
+    padding: revert; /* Restore left padding */
+    list-style: revert; /* Bring back bullets / numbers */
+  }
+
+  blockquote {
+    all: revert; /* Restore default quotation styling */
+    font-style: italic; /* Keep a bit of emphasis */
+    padding: 0 1rem; /* Gentle horizontal inset */
+  }
 }
 
 /* Change highlight color */
@@ -184,4 +204,23 @@ a {
 
 tr {
   height: var(--row-height);
+}
+
+/* Global table borders */
+@layer base {
+  table {
+    border-collapse: collapse; /* Ensure single borders */
+    width: 100%;
+    border: 1px solid hsl(var(--border));
+  }
+  th, td {
+    border: 1px solid hsl(var(--border));
+    padding: 0.5rem 0.75rem;
+    vertical-align: top;
+  }
+  th {
+    background: hsl(var(--muted));
+    font-weight: 600;
+    text-align: left;
+  }
 }
