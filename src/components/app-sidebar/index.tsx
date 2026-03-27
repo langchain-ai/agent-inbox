@@ -13,6 +13,7 @@ import {
 import { FileText, UploadCloud, House } from "lucide-react";
 import { agentInboxSvg } from "../agent-inbox/components/agent-inbox-logo";
 import { SettingsPopover } from "../agent-inbox/components/settings-popover";
+import { AnalyticsPopover } from "../agent-inbox/components/analytics-popover";
 import { PillButton } from "../ui/pill-button";
 import React from "react";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -129,6 +130,7 @@ export function AppSidebar() {
 
               <div className="flex flex-col gap-3 pl-7">
                 <SettingsPopover />
+                <AnalyticsPopover />
                 <NextLink
                   href={AGENT_INBOX_GITHUB_README_URL}
                   target="_blank"
