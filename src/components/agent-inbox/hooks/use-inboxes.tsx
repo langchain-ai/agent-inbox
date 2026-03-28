@@ -121,6 +121,15 @@ export function useInboxes() {
         return;
       }
 
+      // Inboxes exist — ensure the no_inboxes_found param is removed
+      // This acts as a safety net in case the param persists after a reload
+      const currentNoInboxesParam = new URLSearchParams(
+        window.location.search
+      ).get(NO_INBOXES_FOUND_PARAM);
+      if (currentNoInboxesParam) {
+        updateQueryParams(NO_INBOXES_FOUND_PARAM);
+      }
+
       // Ensure each agent inbox has an ID, and if not, add one
       currentInboxes = currentInboxes.map((inbox) => {
         return {
@@ -233,10 +242,16 @@ export function useInboxes() {
       if (!agentInboxesStr || agentInboxesStr === "[]") {
         setAgentInboxes([newInbox]);
         setItem(AGENT_INBOXES_LOCAL_STORAGE_KEY, JSON.stringify([newInbox]));
-        // Set agent inbox, offset, and limit
+        // Set agent inbox, offset, and limit, and remove no_inboxes_found param
         updateQueryParams(
-          [AGENT_INBOX_PARAM, OFFSET_PARAM, LIMIT_PARAM, INBOX_PARAM],
-          [newInbox.id, "0", "10", "interrupted"]
+          [
+            AGENT_INBOX_PARAM,
+            OFFSET_PARAM,
+            LIMIT_PARAM,
+            INBOX_PARAM,
+            NO_INBOXES_FOUND_PARAM,
+          ],
+          [newInbox.id, "0", "10", "interrupted", ""]
         );
         return;
       }
