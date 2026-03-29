@@ -10,6 +10,8 @@ import { ThreadStatusWithAll } from "./types";
 import { AgentInboxView } from "./inbox-view";
 import { ThreadView } from "./thread-view";
 import { useScrollPosition } from "./hooks/use-scroll-position";
+import { useHotkeys } from "./hooks/use-hotkeys";
+import { useThreadsContext } from "./contexts/ThreadContext";
 import { usePathname, useSearchParams } from "next/navigation";
 import { logger } from "./utils/logger";
 
@@ -21,10 +23,23 @@ export function AgentInbox<
     React.useState<ThreadStatusWithAll>("interrupted");
   const { saveScrollPosition, restoreScrollPosition } = useScrollPosition();
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const { threadData } = useThreadsContext();
 
   const selectedThreadIdParam = searchParams.get(VIEW_STATE_THREAD_QUERY_PARAM);
   const isStateViewOpen = !!selectedThreadIdParam;
   const prevIsStateViewOpen = React.useRef(false);
+
+  const threadIds = React.useMemo(
+    () => threadData.map((t) => t.thread.thread_id),
+    [threadData]
+  );
+
+  const { focusedIndex } = useHotkeys({
+    threadIds,
+    currentThreadId: selectedThreadIdParam,
+    isThreadView: isStateViewOpen,
+    updateQueryParams,
+  });
 
   // Need to track first render to avoid restoring scroll on initial page load
   const isFirstRender = React.useRef(true);
@@ -153,6 +168,7 @@ export function AgentInbox<
     <AgentInboxView<ThreadValues>
       saveScrollPosition={saveScrollPosition}
       containerRef={containerRef}
+      focusedIndex={focusedIndex}
     />
   );
 }

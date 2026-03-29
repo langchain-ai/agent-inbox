@@ -12,12 +12,14 @@ interface InterruptedInboxItem<
 > {
   threadData: InterruptedThreadData<ThreadValues>;
   isLast: boolean;
+  isFocused?: boolean;
   onThreadClick: (id: string) => void;
 }
 
 export const InterruptedInboxItem = <ThreadValues extends Record<string, any>>({
   threadData,
   isLast,
+  isFocused,
   onThreadClick,
 }: InterruptedInboxItem<ThreadValues>) => {
   const { updateQueryParams } = useQueryParams();
@@ -65,7 +67,8 @@ export const InterruptedInboxItem = <ThreadValues extends Record<string, any>>({
       onClick={handleThreadClick}
       className={cn(
         "grid grid-cols-12 w-full p-4 items-center cursor-pointer hover:bg-gray-50/90 transition-colors ease-in-out h-[71px]",
-        !isLast && "border-b border-gray-200"
+        !isLast && "border-b border-gray-200",
+        isFocused && "ring-2 ring-blue-400 bg-blue-50/50"
       )}
     >
       {/* Column 1: Dot - adjusted span slightly */}
