@@ -103,7 +103,7 @@
     "@typescript-eslint/eslint-plugin": "^8.57.2",
     "@typescript-eslint/parser": "^8.57.2",
     "eslint": "^8",
-    "eslint-config-next": "14.2.10",
+    "eslint-config-next": "15.5.14",
     "postcss": "^8",
     "prettier": "^3.8.1",
     "tailwind-scrollbar": "^3.1.0",
@@ -115,7 +115,7 @@
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "resolutions": {
     "form-data": ">=4.0.4",
-    "fast-xml-parser": ">=5.3.6",
+    "fast-xml-parser": ">=5.5.7",
     "linkifyjs": ">=4.3.2",
     "glob": ">=10.5.0",
     "katex": ">=0.16.21",
