@@ -123,7 +123,7 @@
     "prismjs": ">=1.30.0",
     "@babel/runtime": ">=7.26.10",
     "mdast-util-to-hast": ">=13.2.1",
-    "markdown-it": ">=14.1.1",
+    "markdown-it": ">=14.2.0",
     "langsmith": ">=0.4.6",
     "@supabase/auth-js": ">=2.69.1",
     "diff": ">=5.2.2"
