@@ -30,6 +30,12 @@ cd agent-inbox
 yarn install
 ```
 
+Start up the web server:
+
+```bash
+yarn dev
+```
+
 ## Configuration
 
 Once up and running, you'll need to take two actions so that the Agent Inbox can connect to your LangGraph deployment.
