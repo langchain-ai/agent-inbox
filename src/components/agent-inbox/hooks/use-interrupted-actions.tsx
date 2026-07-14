@@ -141,8 +141,7 @@ export default function useInterruptedActions<
       return;
     }
     const currentInbox = getSearchParam(INBOX_PARAM) as
-      | ThreadStatusWithAll
-      | undefined;
+      ThreadStatusWithAll | undefined;
     if (!currentInbox) {
       toast({
         title: "Error",
@@ -333,8 +332,7 @@ export default function useInterruptedActions<
     }
 
     const currentInbox = getSearchParam(INBOX_PARAM) as
-      | ThreadStatusWithAll
-      | undefined;
+      ThreadStatusWithAll | undefined;
     if (!currentInbox) {
       toast({
         title: "Error",
@@ -372,8 +370,7 @@ export default function useInterruptedActions<
       return;
     }
     const currentInbox = getSearchParam(INBOX_PARAM) as
-      | ThreadStatusWithAll
-      | undefined;
+      ThreadStatusWithAll | undefined;
     if (!currentInbox) {
       toast({
         title: "Error",
