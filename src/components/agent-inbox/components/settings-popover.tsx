@@ -99,8 +99,7 @@ export function SettingsPopover() {
         if (!c && langchainApiKey && langchainApiKeyNotSet.current) {
           langchainApiKeyNotSet.current = false;
           const inboxParam = getSearchParam(INBOX_PARAM) as
-            | ThreadStatusWithAll
-            | undefined;
+            ThreadStatusWithAll | undefined;
           if (inboxParam) {
             void fetchThreads(inboxParam);
           }
