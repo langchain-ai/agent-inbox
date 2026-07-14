@@ -3,7 +3,9 @@ import Markdown, { Options } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 
-export interface MarkdownTextProps extends Options {}
+export interface MarkdownTextProps extends Options {
+  className?: string;
+}
 
 export function MarkdownText({ children, ...props }: MarkdownTextProps) {
   return (

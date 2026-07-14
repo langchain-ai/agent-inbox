@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "format": "prettier --config .prettierrc --write \"src\"",
     "format:check": "prettier --config .prettierrc --check \"src\""
   },
@@ -92,7 +92,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "^9.39.5",
     "@types/eslint__js": "^9.14.0",
     "@types/js-cookie": "^3.0.6",
     "@types/lodash": "^4.17.24",
@@ -102,14 +102,14 @@
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.60.1",
     "@typescript-eslint/parser": "^8.60.1",
-    "eslint": "^10",
+    "eslint": "^9.39.5",
     "eslint-config-next": "16.2.10",
     "postcss": "^8",
     "prettier": "^3.8.3",
-    "tailwind-scrollbar": "^4.0.2",
-    "tailwindcss": "^4.3.2",
+    "tailwind-scrollbar": "^3.1.0",
+    "tailwindcss": "^3.4.19",
     "tsx": "^4.22.4",
-    "typescript": "^7",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.60.1"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
