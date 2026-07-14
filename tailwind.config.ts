@@ -1,3 +1,7 @@
+import assistantUi from "@assistant-ui/react-ui/tailwindcss";
+import tailwindScrollbarHide from "tailwind-scrollbar-hide";
+import tailwindcssAnimate from "tailwindcss-animate";
+import tailwindScrollbar from "tailwind-scrollbar";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -130,12 +134,12 @@ const config: Config = {
   	}
   },
   plugins: [
-    require("tailwind-scrollbar-hide"),
-    require("tailwindcss-animate"),
-    require("@assistant-ui/react-ui/tailwindcss")({
+    tailwindScrollbarHide,
+    tailwindcssAnimate,
+    assistantUi({
       components: ["thread"],
     }),
-		require('tailwind-scrollbar'),
+    tailwindScrollbar,
   ],
 };
 export default config;
