@@ -106,8 +106,7 @@ export function AgentInbox<
       if (typeof window === "undefined") return;
 
       const currentInbox = getSearchParam(INBOX_PARAM) as
-        | ThreadStatusWithAll
-        | undefined;
+        ThreadStatusWithAll | undefined;
       if (!currentInbox) {
         // Set default inbox if none selected, and ensure offset, limit, and inbox (tab) are set
         updateQueryParams(

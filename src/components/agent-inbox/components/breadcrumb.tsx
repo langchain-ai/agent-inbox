@@ -37,8 +37,7 @@ export function BreadCrumb({ className }: { className?: string }) {
       }
 
       const selectedInboxParam = searchParams.get(INBOX_PARAM) as
-        | ThreadStatusWithAll
-        | undefined;
+        ThreadStatusWithAll | undefined;
       if (selectedInboxParam) {
         setSelectedInboxLabel(prettifyText(selectedInboxParam));
       } else {

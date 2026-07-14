@@ -50,12 +50,11 @@ type ThreadContentType<
       stream?: TStream;
     }
   ) => TStream extends true
-    ?
-        | AsyncGenerator<{
-            event: Record<string, any>;
-            data: any;
-          }>
-        | undefined
+    ? | AsyncGenerator<{
+          event: Record<string, any>;
+          data: any;
+        }>
+      | undefined
     : Promise<Run> | undefined;
   fetchSingleThread: (
     threadId: string
@@ -416,12 +415,11 @@ export function ThreadsProvider<
       stream?: TStream;
     }
   ): TStream extends true
-    ?
-        | AsyncGenerator<{
-            event: Record<string, any>;
-            data: any;
-          }>
-        | undefined
+    ? | AsyncGenerator<{
+          event: Record<string, any>;
+          data: any;
+        }>
+      | undefined
     : Promise<Run> | undefined => {
     const graphId = agentInboxes.find((i) => i.selected)?.graphId;
     if (!graphId) {
