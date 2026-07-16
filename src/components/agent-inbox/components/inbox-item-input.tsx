@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { CircleX, LoaderCircle, Undo2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { logger } from "../utils/logger";
+import { HUMAN_RESPONSE_HOTKEY_TARGET } from "../hooks/use-thread-keyboard-shortcuts";
 
 function ResetButton({ handleReset }: { handleReset: () => void }) {
   return (
@@ -138,6 +139,7 @@ function ResponseComponent({
           onKeyDown={handleKeyDown}
           rows={4}
           placeholder="Your response here..."
+          data-hotkey-target={HUMAN_RESPONSE_HOTKEY_TARGET}
         />
       </div>
 
@@ -297,6 +299,9 @@ function EditAndOrAcceptComponent({
                 onChange={(e) => onEditChange(e.target.value, editResponse, k)}
                 onKeyDown={handleKeyDown}
                 rows={numRows}
+                {...(idx === 0
+                  ? { "data-hotkey-target": HUMAN_RESPONSE_HOTKEY_TARGET }
+                  : {})}
               />
             </div>
           </div>
