@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { ThreadData, GenericThreadData } from "../types";
 import useInterruptedActions from "../hooks/use-interrupted-actions";
+import { useThreadKeyboardShortcuts } from "../hooks/use-thread-keyboard-shortcuts";
 import { constructOpenInStudioURL } from "../utils";
 import { ThreadIdCopyable } from "./thread-id";
 import { InboxItemInput } from "./inbox-item-input";
@@ -140,6 +141,12 @@ export function ThreadActionsView<
         }
       : null,
     setThreadData,
+  });
+
+  useThreadKeyboardShortcuts({
+    threadId: threadData.thread.thread_id,
+    isInterrupted,
+    onResetAllInputs: actions.handleResetAllInputs,
   });
 
   const handleOpenInStudio = () => {
