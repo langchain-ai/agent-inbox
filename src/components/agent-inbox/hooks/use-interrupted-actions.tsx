@@ -59,7 +59,7 @@ interface UseInterruptedActionsValue {
   setHasAddedResponse: React.Dispatch<React.SetStateAction<boolean>>;
   setHasEdited: React.Dispatch<React.SetStateAction<boolean>>;
 
-  /** Reset all human response / edit inputs to their initial values (`u` hotkey). */
+  /** Reset all human response / edit inputs to their initial values. */
   handleResetAllInputs: () => void;
 
   // Refs
@@ -397,12 +397,14 @@ export default function useInterruptedActions<
   const handleResetAllInputs = React.useCallback(() => {
     if (!threadData?.interrupts?.length) return;
     try {
-      const { responses, defaultSubmitType } = createDefaultHumanResponse(
-        threadData.interrupts,
-        initialHumanInterruptEditValue
-      );
+      const { responses, defaultSubmitType, hasAccept } =
+        createDefaultHumanResponse(
+          threadData.interrupts,
+          initialHumanInterruptEditValue
+        );
       setHumanResponse(responses);
       setSelectedSubmitType(defaultSubmitType);
+      setAcceptAllowed(hasAccept);
       setHasEdited(false);
       setHasAddedResponse(false);
     } catch (e) {
