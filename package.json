@@ -73,7 +73,7 @@
     "langsmith": "^0.8.1",
     "lodash": "^4.18.1",
     "lucide-react": "^1.24.0",
-    "next": "16.2.10",
+    "next": "16.2.11",
     "react": "^19",
     "react-colorful": "^5.8.0",
     "react-dom": "^19",
