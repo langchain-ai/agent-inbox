@@ -28,12 +28,7 @@ interface StateViewRecursiveProps {
 }
 
 const messageTypeToLabel = (message: BaseMessage) => {
-  let type = "";
-  if ("type" in message) {
-    type = message.type as string;
-  } else {
-    type = message._getType();
-  }
+  const type = message.type as string;
 
   switch (type) {
     case "human":

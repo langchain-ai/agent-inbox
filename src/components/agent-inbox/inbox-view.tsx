@@ -15,7 +15,7 @@ interface AgentInboxViewProps<
   _ThreadValues extends Record<string, any> = Record<string, any>,
 > {
   saveScrollPosition: (element?: HTMLElement | null) => void;
-  containerRef: React.RefObject<HTMLDivElement>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export function AgentInboxView<

@@ -57,8 +57,7 @@ export function Pagination() {
 
   const handleClickNext = async () => {
     const selectedInbox = getSearchParam(INBOX_PARAM) as
-      | ThreadStatusWithAll
-      | undefined;
+      ThreadStatusWithAll | undefined;
     if (!selectedInbox) {
       toast({
         title: "Error",
@@ -77,8 +76,7 @@ export function Pagination() {
 
   const handleClickPrevious = async () => {
     const selectedInbox = getSearchParam(INBOX_PARAM) as
-      | ThreadStatusWithAll
-      | undefined;
+      ThreadStatusWithAll | undefined;
     if (!selectedInbox) {
       toast({
         title: "Error",
