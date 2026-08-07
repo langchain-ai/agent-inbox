@@ -11,3 +11,6 @@ export const AGENT_INBOX_GITHUB_README_URL =
 
 export const IMPROPER_SCHEMA = "improper_schema";
 export const STUDIO_NOT_WORKING_TROUBLESHOOTING_URL = `${AGENT_INBOX_GITHUB_README_URL}#the-open-in-studio-button-doesnt-work-for-my-deployed-graphs`;
+
+/** `data-hotkey-target` value for the primary human response / edit textarea. */
+export const HUMAN_RESPONSE_HOTKEY_TARGET = "human-response";
