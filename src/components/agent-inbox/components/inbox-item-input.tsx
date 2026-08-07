@@ -20,6 +20,7 @@ function ResetButton({ handleReset }: { handleReset: () => void }) {
     <Button
       onClick={handleReset}
       variant="ghost"
+      data-testid="reset-button"
       className="flex items-center justify-center gap-2 text-gray-500 hover:text-red-500"
     >
       <Undo2 className="w-4 h-4" />
@@ -407,13 +408,13 @@ export function InboxItemInput({
           args:
             Array.isArray(change) && Array.isArray(key)
               ? {
-                  ...response.args.args,
-                  ...Object.fromEntries(key.map((k, i) => [k, change[i]])),
-                }
+                ...response.args.args,
+                ...Object.fromEntries(key.map((k, i) => [k, change[i]])),
+              }
               : {
-                  ...response.args.args,
-                  [key as string]: change as string,
-                },
+                ...response.args.args,
+                [key as string]: change as string,
+              },
         },
       };
       if (
