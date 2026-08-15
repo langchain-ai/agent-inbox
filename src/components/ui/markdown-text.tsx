@@ -7,8 +7,12 @@ export interface MarkdownTextProps extends Options {
   className?: string;
 }
 
-export function MarkdownText({ children, ...props }: MarkdownTextProps) {
-  return (
+export function MarkdownText({
+  children,
+  className,
+  ...props
+}: MarkdownTextProps) {
+  const markdown = (
     <Markdown
       remarkPlugins={[remarkGfm]}
       rehypePlugins={[rehypeRaw]}
@@ -98,4 +102,6 @@ export function MarkdownText({ children, ...props }: MarkdownTextProps) {
       {children}
     </Markdown>
   );
+
+  return <div className={className}>{markdown}</div>;
 }
