@@ -28,6 +28,7 @@ To start running the Agent Inbox, first clone the repository and install depende
 git clone https://github.com/langchain-ai/agent-inbox.git
 cd agent-inbox
 yarn install
+yarn dev
 ```
 
 ## Configuration
