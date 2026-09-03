@@ -2105,9 +2105,9 @@
   integrity sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==
 
 "@tiptap/core@^3.13.0":
-  version "3.27.4"
-  resolved "https://registry.yarnpkg.com/@tiptap/core/-/core-3.27.4.tgz#f3497b0e6d52326c25e3748b39ee502aa286c456"
-  integrity sha512-8W/GwlEn0JwNdpyVfTWcXwHYUpj9BWwO++YxtizmgjJzlwigSh7/xLVJMwVykuQHQ2fCq5rkUvmBRtpHOMLUQA==
+  version "3.31.0"
+  resolved "https://registry.yarnpkg.com/@tiptap/core/-/core-3.31.0.tgz#baebeb56894a8a02864bfc95143b3bb8f84c2c5d"
+  integrity sha512-SY3yE2ACharFvk0BKgotV6SbwV8R4tN5fGtWOM6deY4JNF3v6CXOD78RFwjs2HSohGWBRyJVPDvrX9nfi8Nsxg==
 
 "@tiptap/extension-bold@^3.13.0":
   version "3.27.4"
