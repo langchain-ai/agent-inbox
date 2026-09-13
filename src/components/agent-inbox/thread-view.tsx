@@ -42,6 +42,58 @@ export function ThreadView<
     }
   }, []);
 
+  const currentThreadIndex = React.useMemo(
+    () => threads.findIndex((t) => t.thread.thread_id === threadId),
+    [threads, threadId]
+  );
+
+  const goToThreadAtIndex = React.useCallback(
+    (index: number) => {
+      const target = threads[index];
+      if (target) {
+        updateQueryParams(
+          VIEW_STATE_THREAD_QUERY_PARAM,
+          target.thread.thread_id
+        );
+      }
+    },
+    [threads, updateQueryParams]
+  );
+
+  // Keyboard shortcuts: `e` closes the thread and returns to the inbox list,
+  // up/down arrows move between threads. Ignored while typing in an input.
+  React.useEffect(() => {
+    try {
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+        const target = event.target as HTMLElement | null;
+        const isEditableTarget =
+          !!target &&
+          (target.tagName === "INPUT" ||
+            target.tagName === "TEXTAREA" ||
+            target.isContentEditable);
+        if (isEditableTarget) return;
+
+        if (event.key === "e") {
+          event.preventDefault();
+          updateQueryParams(VIEW_STATE_THREAD_QUERY_PARAM);
+        } else if (event.key === "ArrowDown") {
+          event.preventDefault();
+          goToThreadAtIndex(currentThreadIndex + 1);
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          goToThreadAtIndex(currentThreadIndex - 1);
+        }
+      };
+
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    } catch (e) {
+      logger.error("Error adding keyboard shortcuts in thread view", e);
+    }
+  }, [currentThreadIndex, goToThreadAtIndex, updateQueryParams]);
+
   React.useEffect(() => {
     try {
       if (typeof window === "undefined") return;
