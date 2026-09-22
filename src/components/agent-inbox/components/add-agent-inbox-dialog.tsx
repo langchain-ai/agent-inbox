@@ -193,8 +193,8 @@ export function AddAgentInboxDialog({
           <DialogHeader>
             <DialogTitle>Welcome to the Agent Inbox!</DialogTitle>
             <DialogDescription>
-              <p>To get started, please add an inbox below.</p>
-              <p>
+              <span className="block">To get started, please add an inbox below.</span>
+              <span className="block">
                 Not sure where to start? Check out our docs
                 <a
                   href={AGENT_INBOX_GITHUB_README_URL}
@@ -205,7 +205,7 @@ export function AddAgentInboxDialog({
                   here
                 </a>
                 .
-              </p>
+              </span>
             </DialogDescription>
           </DialogHeader>
         ) : (
