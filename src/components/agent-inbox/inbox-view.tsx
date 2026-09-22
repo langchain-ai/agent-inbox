@@ -10,6 +10,7 @@ import { InboxButtons } from "./components/inbox-buttons";
 import { BackfillBanner } from "./components/backfill-banner";
 import { forceInboxBackfill } from "./utils/backfill";
 import { logger } from "./utils/logger";
+import { filterThreadsForInbox } from "./utils/thread-list";
 
 interface AgentInboxViewProps<
   _ThreadValues extends Record<string, any> = Record<string, any>,
@@ -144,11 +145,7 @@ export function AgentInboxView<
   }, [searchParams]);
 
   const threadDataToRender = React.useMemo(
-    () =>
-      threadData.filter((t) => {
-        if (selectedInbox === "all") return true;
-        return t.status === selectedInbox;
-      }),
+    () => filterThreadsForInbox(threadData, selectedInbox),
     [selectedInbox, threadData]
   );
   const noThreadsFound = !threadDataToRender.length;
