@@ -12,6 +12,7 @@ import { ThreadView } from "./thread-view";
 import { useScrollPosition } from "./hooks/use-scroll-position";
 import { usePathname, useSearchParams } from "next/navigation";
 import { logger } from "./utils/logger";
+import { useHotkeys } from "./hooks/use-hotkeys";
 
 export function AgentInbox<
   ThreadValues extends Record<string, any> = Record<string, any>,
@@ -21,6 +22,7 @@ export function AgentInbox<
     React.useState<ThreadStatusWithAll>("interrupted");
   const { saveScrollPosition, restoreScrollPosition } = useScrollPosition();
   const containerRef = React.useRef<HTMLDivElement>(null);
+  useHotkeys();
 
   const selectedThreadIdParam = searchParams.get(VIEW_STATE_THREAD_QUERY_PARAM);
   const isStateViewOpen = !!selectedThreadIdParam;
